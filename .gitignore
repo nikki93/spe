@@ -6,3 +6,9 @@
 
 *.swp
 */tags
+*.sdf
+*.opensdf
+*.sln
+*.suo
+*.vcxproj*
+*/ipch
