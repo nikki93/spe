@@ -142,7 +142,7 @@ end
 
 if os.is('windows') then
 
-defines "WIN32"
+defines { "WIN32", "_CONSOLE", "POCO_STATIC" }
 
 -- Include/library directories and libraries ------------------------------------------------
 
@@ -199,12 +199,10 @@ libdirs  {
 }
 
 links  { 
-    "cairo-static", "pixman-1", "msimg32", "OpenGL32", "GLu32", "kernel32", "setupapi",
-    "Vfw32", "comctl32", "glut32", "rtAudioD", "videoInput", "libfreetype", "FreeImage",
-    "qtmlClient", "dsound", "user32", "gdi32", "winspool", "comdlg32", "advapi32",
-    "shell32", "ole32", "oleaut32", "uuid", "glew32s", "fmodex_vc", "glu32",
-    "PocoFoundationmdd", "PocoNetmdd", "PocoUtilmdd", "PocoXMLmdd", "Ws2_32", "tess2",
-    "odbc32", "odbccp32"
+    "cairo-static", "pixman-1", "msimg32", "OpenGL32", "GLu32", "setupapi", "Vfw32", 
+    "comctl32", "glut32", "rtAudioD", "videoInput", "libfreetype", "FreeImage",
+    "qtmlClient", "dsound", "glew32s", "fmodex_vc", "glu32", "PocoFoundationmdd", 
+    "PocoNetmdd", "PocoUtilmdd", "PocoXMLmdd", "Ws2_32", "tess2"
 }
 
 -- Build options ----------------------------------------------------------------------------
