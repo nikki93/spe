@@ -1,5 +1,7 @@
 #include "App.h"
 
+#include <ofGraphics.h>
+
 //--------------------------------------------------------------
 void App::setup()
 {
@@ -13,7 +15,8 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
-
+    ofSetColor(ofColor::black);
+    ofEllipse(0, 0, 3);
 }
 //--------------------------------------------------------------
 void App::keyPressed(int key)
