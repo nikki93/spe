@@ -215,13 +215,13 @@ linkoptions { "/SUBSYSTEM:WINDOWS" }
 configuration "debug"
     buildoptions { "-g" }
     defines { "DEBUG", "_DEBUG" }
-    links "openframeworksLibDebug.lib"
+    links "openframeworksLibDebug"
     objdir "obj/debug"
     targetdir "bin/debug"
     targetsuffix "_d"
 
 configuration "release"
-    links "openframeworksLib.lib"
+    links "openframeworksLib"
     objdir "obj/release"
     targetdir "bin/release"
 
