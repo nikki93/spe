@@ -1,0 +1,8 @@
+*/obj
+*/bin/debug
+*/bin/release
+*.make
+*/Makefile
+
+*.swp
+*/tags
