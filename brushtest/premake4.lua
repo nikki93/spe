@@ -1,7 +1,7 @@
 -- Project ----------------------------------------------------------------------------------
 
 solution "brushtest"
-configurations { "debug", "release" }
+configurations { "Debug", "Release" }
 
 project "brushtest"
 targetname "brushtest"
@@ -121,14 +121,14 @@ linkoptions "-pthread"
 
 -- Configurations ---------------------------------------------------------------------------
 
-configuration "debug"
-    buildoptions { "-g" }
+configuration "Debug"
+    flags { "Symbols" }
     defines { "DEBUG", "_DEBUG" }
     objdir "obj/debug"
     targetdir "bin/debug"
     targetsuffix "_d"
 
-configuration "release"
+configuration "Release"
     objdir "obj/release"
     targetdir "bin/release"
 
@@ -208,19 +208,19 @@ links  {
 -- Build options ----------------------------------------------------------------------------
 
 buildoptions "/MP"
-linkoptions { "/SUBSYSTEM:WINDOWS" }
+linkoptions { "/NODEFAULTLIB:libcpmt.lib", "/NODEFAULTLIB:LIBCMT", "/SUBSYSTEM:WINDOWS" }
 
 -- Configurations ---------------------------------------------------------------------------
 
-configuration "debug"
-    buildoptions { "-g" }
+configuration "Debug"
+    flags { "Symbols" }
     defines { "DEBUG", "_DEBUG" }
     links "openframeworksLibDebug"
     objdir "obj/debug"
     targetdir "bin/debug"
     targetsuffix "_d"
 
-configuration "release"
+configuration "Release"
     links "openframeworksLib"
     objdir "obj/release"
     targetdir "bin/release"

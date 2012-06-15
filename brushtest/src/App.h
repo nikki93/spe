@@ -3,9 +3,14 @@
 
 #include "ofBaseApp.h"
 
+#include "Brush.h"
+
 class App : 
     public ofBaseApp
 {
+    protected:
+        Brush *_testBrush;
+
     public:
         void setup();
         void update();
