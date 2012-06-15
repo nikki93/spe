@@ -7,9 +7,9 @@
 
 Brush *tempBrush()
 {
-    return new Brush(Globals::mousePos,
+    return new Brush(Globals::mousePos, ofVec2f(0, 0),
             ofColor(255, 0, 0), 10,
-            600, 0.1);
+            600, 0.7);
 }
 
 //--------------------------------------------------------------
@@ -34,7 +34,7 @@ void App::update()
 
     // move the brush!
     if (_testBrush)
-        if (!_testBrush->update(elapsed))
+        if (!_testBrush->move(ofVec2f(200, 0), 0.01))
         {
             delete _testBrush;
             _testBrush = 0;

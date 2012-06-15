@@ -41,18 +41,19 @@ class Brush
         typedef std::vector<Dot> DotList;
 
         DotList _dots;
-        ofVec3f _pos;
-        ofVec3f _vel;
+        ofVec2f _pos;
+        ofVec2f _vel;
 
         float _currDist;
         float _totalDist;
 
     public:
-        Brush(ofVec2f pos, ofColor color, float radius, float dist, float density)
-            : _pos(pos), _totalDist(dist), _currDist(0)
+        Brush(ofVec2f pos, ofVec2f vel, ofColor color, float radius, float dist, float density)
+            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
         {
             // scale density by area
             int count = density * radius*radius;
+
             while (count--)
                 _dots.push_back(Dot(ofVec2f(ofRandom(-radius, radius), ofRandom(-radius, radius)),
                             color * (1.0 + ofRandom(-0.2, 0.2)),
@@ -67,6 +68,27 @@ class Brush
         {
         }
 
+        // return false if destroy, true if continue
+        bool move(ofVec2f force, float dt)
+        {
+            _vel += force*dt;
+            ofVec2f disp = _vel*dt;
+            float dispLen = disp.length();
+
+            _currDist += dispLen;
+            if (_currDist >= _totalDist)
+                return false;
+
+            _pos += disp;
+
+            float alphaDisp = dispLen/_totalDist*255;
+            for (DotList::iterator d = _dots.begin();
+                    d != _dots.end(); ++d)
+                d->color.a = ofClamp(d->color.a - (d->dieSpeed * alphaDisp), 0, 255);
+
+            return true;
+        }
+
         bool update(float elapsed)
         {
             ofVec2f oldPos = _pos;
@@ -77,6 +99,8 @@ class Brush
             _currDist += disp;
             if (_currDist >= _totalDist)
                 return false;
+
+            printf("jump: %f\n", disp);
 
             float alphaDisp = disp/_totalDist*255;
             for (DotList::iterator d = _dots.begin();
@@ -98,17 +122,17 @@ class Brush
 
                 if (d->radius >= d->baseRadius)
                     d->radius += ofRandom(BRUSH_RADIUS_OSC_RANGE);
-                else if (d->radius < d->baseRadius)
+                else
                     d->radius -= ofRandom(BRUSH_RADIUS_OSC_RANGE);
 
                 if (d->pos.x >= d->basePos.x)
                     d->pos.x += ofRandom(BRUSH_POS_OSC_RANGE);
-                else if (d->pos.x < d->basePos.x)
+                else
                     d->pos.x -= ofRandom(BRUSH_POS_OSC_RANGE);
 
                 if (d->pos.y >= d->basePos.y)
                     d->pos.y += ofRandom(BRUSH_POS_OSC_RANGE);
-                else if (d->pos.y < d->basePos.y)
+                else
                     d->pos.y -= ofRandom(BRUSH_POS_OSC_RANGE);
             }
 
