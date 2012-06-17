@@ -25,7 +25,7 @@ class Brush
             float radius;
             float dieSpeed;
 
-            Dot (ofVec2f pos, ofColor col, float rad, float dSpeed)
+            Dot (const ofVec2f &pos, ofColor col, float rad, float dSpeed)
                 : basePos(pos), pos(pos),
                   color(col), 
                   baseRadius(rad), radius(rad),
@@ -33,7 +33,7 @@ class Brush
             {
             }
 
-            void sweep(ofVec2f newpos)
+            void sweep(const ofVec2f &newpos)
             {
             }
         };
@@ -48,7 +48,7 @@ class Brush
         float _totalDist;
 
     public:
-        Brush(ofVec2f pos, ofVec2f vel, ofColor color, float radius, float dist, float density)
+        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist, float density)
             : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
         {
             // scale density by area
@@ -64,12 +64,13 @@ class Brush
                             ofRandom(1, 5)));
         }
 
-        ~Brush()
+        ofVec2f getPosition()
         {
+            return _pos;
         }
 
         // return false if destroy, true if continue
-        bool move(ofVec2f force, float dt)
+        bool move(const ofVec2f &force, float dt)
         {
             _vel += force*dt;
             ofVec2f disp = _vel*dt;
@@ -89,20 +90,20 @@ class Brush
             return true;
         }
 
-        bool update(float elapsed)
+        bool update(float dt)
         {
-            ofVec2f oldPos = _pos;
+            ofVec2f prevPos = _pos;
             _pos = Globals::mousePos;
 
-            float disp = (_pos - oldPos).length();
+            float dispLen = (_pos - prevPos).length();
 
-            _currDist += disp;
+            _currDist += dispLen;
             if (_currDist >= _totalDist)
                 return false;
 
-            printf("jump: %f\n", disp);
+            _pos += disp;
 
-            float alphaDisp = disp/_totalDist*255;
+            float alphaDisp = dispLen/_totalDist*255;
             for (DotList::iterator d = _dots.begin();
                     d != _dots.end(); ++d)
                 d->color.a = ofClamp(d->color.a - (d->dieSpeed * alphaDisp), 0, 255);

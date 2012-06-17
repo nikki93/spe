@@ -1,7 +1,8 @@
 #ifndef __APP_H__
 #define __APP_H__
 
-#include "ofBaseApp.h"
+#include <ofBaseApp.h>
+#include <ofImage.h>
 
 #include "Brush.h"
 
@@ -10,11 +11,17 @@ class App :
 {
     protected:
         Brush *_testBrush;
+        ofVec2f _forceField[1024][768];
+        ofImage _forcePotential;
+
+        typedef std::vector<Brush *> BrushList;
+        BrushList _brushes;
 
     public:
         void setup();
         void update();
         void draw();
+        void clear();
 
         void keyPressed(int key);
         void keyReleased(int key);
