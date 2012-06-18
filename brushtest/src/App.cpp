@@ -9,8 +9,8 @@
 Brush *tempBrush()
 {
     return new Brush(Globals::mousePos, ofVec2f(0, 0),
-            ofColor(255, 0, 0), 10,
-            1000, 0.05);
+            ofColor(255, 0, 0), 8,
+            200, 0.2);
 }
 
 void circleField(ofVec2f field[1024][768])
@@ -24,7 +24,7 @@ void circleField(ofVec2f field[1024][768])
         }
 }
 
-void gradientField(ofVec2f field[1024][768], const ofPixels &pix)
+void gradientField(Field &field, const ofPixels &pix)
 {
 #define VAL(x, y) pix.getColor(x, y).r
     for (int i = 1; i < 1023; ++i)
@@ -50,26 +50,31 @@ void gradientField(ofVec2f field[1024][768], const ofPixels &pix)
             g.y += VAL(i - 1, j + 1);
             g.y += VAL(i + 1, j + 1);
 
-            field[i][j] = 50*g;
+            field.set(i, j, 50*g);
         }
 }
 
 //--------------------------------------------------------------
+App::App()
+    : _forceField(1024, 768)
+{
+}
+//--------------------------------------------------------------
 void App::setup()
 {
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-
-    // don't clear each frame
     ofSetBackgroundAuto(false);
 
-    // initial mouse position
     Globals::mousePos = ofVec2f(0, 0);
 
-    // make force field
+    // force field
     //_forcePotential.loadImage("/home/nikki/Development/Projects/spe/brushtest/data/somepicture.png");
-    _forcePotential.loadImage("somepicture.png");
+    _forcePotential.loadImage("depth.png");
     const ofPixels &pix = _forcePotential.getPixelsRef();
     gradientField(_forceField, pix);
+
+    // color image
+    _color.loadImage("color.png");
 
     // draw background
     clear();
@@ -89,7 +94,7 @@ void App::update()
         int i = ofClamp(pos.x, 0, 1023);
         int j = ofClamp(pos.y, 0, 767);
 
-        if (!brush->move(_forceField[i][j], 0.005))
+        if (!brush->move(_forceField.get(i, j), 0.005))
         {
             delete brush;
             iter = _brushes.erase(iter);
@@ -101,19 +106,10 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
-    // see the brush!
+    // draw brushes
     for (BrushList::iterator i = _brushes.begin();
             i != _brushes.end(); ++i)
         (*i)->draw();
-
-    ofSetColor(ofColor::blue);
-    for (int i = 0; i < 1024; i += 15)
-        for (int j = 0; j < 768; j += 15)
-        {
-            ofVec2f start(i, j);
-            ofLine(start, start + 10*(_forceField[i][j].normalized()));
-            ofCircle(start, 1);
-        }
 }
 //--------------------------------------------------------------
 void App::clear()
@@ -126,16 +122,10 @@ void App::clear()
 
     ofSetColor(ofColor::white);
     _forcePotential.draw(0, 0);
-}
-//--------------------------------------------------------------
-void App::keyPressed(int key)
-{
 
-}
-//--------------------------------------------------------------
-void App::keyReleased(int key)
-{
-
+    // draw force field
+    ofSetColor(ofColor::black);
+    _forceField.draw(ofVec2f(0, 0), 7);
 }
 //--------------------------------------------------------------
 void App::mouseMoved(int x, int y )
@@ -148,12 +138,6 @@ void App::mouseDragged(int x, int y, int button)
 {
     Globals::mousePos.x = x;
     Globals::mousePos.y = y;
-
-    if (button == 0)
-    {
-        // put brush down
-        _brushes.push_back(tempBrush());
-    }
 }
 //--------------------------------------------------------------
 void App::mousePressed(int x, int y, int button)
@@ -162,6 +146,7 @@ void App::mousePressed(int x, int y, int button)
     {
         case 0:
             Globals::mouseLeft = true;
+            _brushes.push_back(tempBrush());
             break;
 
         case 2:
@@ -174,10 +159,5 @@ void App::mouseReleased(int x, int y, int button)
 {
     if (button == 0)
         Globals::mouseLeft = false;
-}
-//--------------------------------------------------------------
-void App::windowResized(int w, int h)
-{
-
 }
 //--------------------------------------------------------------
