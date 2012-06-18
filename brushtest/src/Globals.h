@@ -5,8 +5,6 @@
 
 namespace Globals
 {
-    extern ofVec2f mousePos;
-    extern bool mouseLeft;
 };
 
 #endif

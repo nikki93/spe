@@ -100,6 +100,7 @@ class Brush
                 ofSetColor(d->color);
                 ofCircle(_pos + d->pos, d->radius);
 
+                // oscillate dot radius, position
                 if (d->radius >= d->baseRadius)
                     d->radius += ofRandom(BRUSH_RADIUS_OSC_RANGE);
                 else

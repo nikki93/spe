@@ -6,9 +6,9 @@
 
 #include "Globals.h"
 
-Brush *tempBrush()
+Brush *tempBrush(const ofVec2f &pos)
 {
-    return new Brush(Globals::mousePos, ofVec2f(0, 0),
+    return new Brush(pos, ofVec2f(0, 0),
             ofColor(255, 0, 0), 8,
             200, 0.2);
 }
@@ -65,31 +65,24 @@ void App::setup()
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetBackgroundAuto(false);
 
-    Globals::mousePos = ofVec2f(0, 0);
-
-    // force field
-    //_forcePotential.loadImage("/home/nikki/Development/Projects/spe/brushtest/data/somepicture.png");
-    _forcePotential.loadImage("depth.png");
-    const ofPixels &pix = _forcePotential.getPixelsRef();
-    gradientField(_forceField, pix);
+    // uniform force field
+    for (int i = 0; i < _forceField.width(); ++i)
+        for (int j = 0; j < _forceField.height(); ++j)
+            _forceField.set(i, j, ofVec2f(200, 200));
 
     // color image
     _color.loadImage("color.png");
-
-    // draw background
-    clear();
 }
 //--------------------------------------------------------------
 void App::update()
 {
     float elapsed = ofGetLastFrameTime();
 
-    // move the brush!
+    // move brushes by force field, remove brush if done
     for (BrushList::iterator iter = _brushes.begin();
             iter != _brushes.end(); )
     {
         Brush *brush = *iter;
-
         ofVec2f pos = brush->getPosition();
         int i = ofClamp(pos.x, 0, 1023);
         int j = ofClamp(pos.y, 0, 767);
@@ -114,42 +107,35 @@ void App::draw()
 //--------------------------------------------------------------
 void App::clear()
 {
+    // remove brushes
     while (!_brushes.empty())
     {
         delete _brushes.back();
         _brushes.pop_back();
     }
 
+    // draw background
     ofSetColor(ofColor::white);
-    _forcePotential.draw(0, 0);
-
-    // draw force field
-    ofSetColor(ofColor::black);
-    _forceField.draw(ofVec2f(0, 0), 7);
+    _color.draw(0, 0);
 }
 //--------------------------------------------------------------
 void App::mouseMoved(int x, int y )
 {
-    Globals::mousePos.x = x;
-    Globals::mousePos.y = y;
 }
 //--------------------------------------------------------------
 void App::mouseDragged(int x, int y, int button)
 {
-    Globals::mousePos.x = x;
-    Globals::mousePos.y = y;
 }
 //--------------------------------------------------------------
 void App::mousePressed(int x, int y, int button)
 {
     switch (button)
     {
-        case 0:
-            Globals::mouseLeft = true;
-            _brushes.push_back(tempBrush());
+        case 0: // left
+            _brushes.push_back(tempBrush(ofVec2f(x, y)));
             break;
 
-        case 2:
+        case 2: // right
             clear();
             break;
     }
@@ -157,7 +143,5 @@ void App::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void App::mouseReleased(int x, int y, int button)
 {
-    if (button == 0)
-        Globals::mouseLeft = false;
 }
 //--------------------------------------------------------------
