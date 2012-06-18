@@ -10,7 +10,6 @@ class App :
     public ofBaseApp
 {
     protected:
-        Brush *_testBrush;
         ofVec2f _forceField[1024][768];
         ofImage _forcePotential;
 

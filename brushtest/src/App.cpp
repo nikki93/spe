@@ -3,7 +3,6 @@
 #include <ofGraphics.h>
 #include <ofAppRunner.h>
 #include <ofImage.h>
-#include <unistd.h>
 
 #include "Globals.h"
 
@@ -59,10 +58,6 @@ void gradientField(ofVec2f field[1024][768], const ofPixels &pix)
 void App::setup()
 {
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-
-    char path[200];
-    getcwd(path, 200);
-    printf("%s\n", path);
 
     // don't clear each frame
     ofSetBackgroundAuto(false);
@@ -178,13 +173,7 @@ void App::mousePressed(int x, int y, int button)
 void App::mouseReleased(int x, int y, int button)
 {
     if (button == 0)
-    {
         Globals::mouseLeft = false;
-
-        // lift brush
-        delete _testBrush;
-        _testBrush = 0;
-    }
 }
 //--------------------------------------------------------------
 void App::windowResized(int w, int h)

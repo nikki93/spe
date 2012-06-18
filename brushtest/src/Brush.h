@@ -90,27 +90,6 @@ class Brush
             return true;
         }
 
-        bool update(float dt)
-        {
-            ofVec2f prevPos = _pos;
-            _pos = Globals::mousePos;
-
-            float dispLen = (_pos - prevPos).length();
-
-            _currDist += dispLen;
-            if (_currDist >= _totalDist)
-                return false;
-
-            _pos += disp;
-
-            float alphaDisp = dispLen/_totalDist*255;
-            for (DotList::iterator d = _dots.begin();
-                    d != _dots.end(); ++d)
-                d->color.a = ofClamp(d->color.a - (d->dieSpeed * alphaDisp), 0, 255);
-
-            return true;
-        }
-
         void draw()
         {
             ofEnableAlphaBlending();
