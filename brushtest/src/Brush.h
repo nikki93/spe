@@ -48,7 +48,8 @@ class Brush
         float _totalDist;
 
     public:
-        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist, float density)
+        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist = 100, 
+                float density = 0.1, float fuzziness = 5)
             : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
         {
             // scale density by area
@@ -61,7 +62,7 @@ class Brush
                                 //ofRandom(200, 255),
                                 //ofRandom(128, 190)),
                             ofRandom(BRUSH_DOT_RADIUS),
-                            ofRandom(1, 5)));
+                            ofRandom(1, fuzziness)));
         }
 
         ofVec2f getPosition()

@@ -21,7 +21,7 @@ class Field
 
         // initialize with a function
         Field(size_t w, size_t h, Function *f)
-            : _w(w), _h(h)
+            : _w(w), _h(h), _max(0)
         {
             _arr = new ofVec2f[w*h];
 
@@ -32,7 +32,7 @@ class Field
 
         // uninitialized field
         Field(size_t w, size_t h)
-            : _w(w), _h(h)
+            : _w(w), _h(h), _max(0)
         {
             _arr = new ofVec2f[w*h];
         }
@@ -47,6 +47,13 @@ class Field
         void set(const ofVec2f &pos, const ofVec2f &v)
         {
             set(pos.x, pos.y, v);
+        }
+        void clear()
+        {
+            for (size_t i = 0; i < _w; ++i)
+                for (size_t j = 0; j < _h; ++j)
+                    _arr[_w*j + i] = ofVec2f(0, 0);
+            _max = 0;
         }
 
         // get
@@ -67,7 +74,7 @@ class Field
         // draw field vector directions as a grid
         void draw(const ofVec2f &pos, size_t gridSize)
         {
-            float len = 20*gridSize;
+            float len = 0.9*gridSize;
 
             for (size_t i = 0; i < _w; i += gridSize)
                 for (size_t j = 0; j < _h; j += gridSize)
