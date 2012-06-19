@@ -236,7 +236,7 @@ void App::createBrushes()
 #define GRID_STEP 12
 #define RADIUS 6
 #define DIST 100
-#define DENSITY 0.6
+#define DENSITY 0.2
 #define FUZZINESS 2
 
     for (int x = 0; x < 1024; x += GRID_STEP)
