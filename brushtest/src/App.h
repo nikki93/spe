@@ -12,7 +12,7 @@ class App :
 {
     protected:
         Field _forceField;
-        ofImage _forcePotential;
+        ofImage _potential;
 
         ofImage _color;
 

@@ -146,24 +146,21 @@ void App::setup()
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetBackgroundAuto(false);
 
-    // uniform force field
-    for (int i = 0; i < _forceField.width(); ++i)
-        for (int j = 0; j < _forceField.height(); ++j)
-            _forceField.set(i, j, ofVec2f(0, 0));
+    // color image
+    _color.loadImage("catposterized.png");
+
+    // force field
+    _potential.loadImage("cat.png");
+    flowField(_forceField, _potential);
     _fieldRedrawTimer = -1;
     _fieldRedrawCounting = false;
-
-    // color image
-    _color.loadImage("mountain.png");
-    flowField(_forceField, _color);
-    _color.update();
 }
 //--------------------------------------------------------------
 void App::update()
 {
     float elapsed = ofGetLastFrameTime();
 
-    // time flies!
+    // count down to field redraw
     if (_fieldRedrawCounting && _fieldRedrawTimer > 0)
         _fieldRedrawTimer -= elapsed;
 
@@ -209,9 +206,7 @@ void App::clear()
 
     // draw background
     ofSetColor(ofColor::white);
-    _color.draw(0, 0);
-
-    // draw force field
+    _potential.draw(0, 0);
     _forceField.draw(ofVec2f(0, 0), 10);
     _fieldRedrawCounting = false;
 }
@@ -223,18 +218,17 @@ void App::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void App::mouseDragged(int x, int y, int button)
 {
+    // field brush
     ofVec2f pos(x, y), v;
     ofVec2f disp(pos - _mousePrev);
     disp.normalize();
     disp *= 10;
 
 #define SIZE 20
-
     int xMin = ofClamp(x - SIZE, 0, 1023),
         xMax = ofClamp(x + SIZE, 0, 1023),
         yMin = ofClamp(y - SIZE, 0, 768),
         yMax = ofClamp(y + SIZE, 0, 768);
-
     for (v.x = xMin; v.x <= xMax; v.x += 1)
         for (v.y = yMin; v.y <= yMax; v.y += 1)
         {
@@ -242,8 +236,7 @@ void App::mouseDragged(int x, int y, int button)
             _forceField.set(v.x, v.y, _forceField.get(v.x, v.y) + disp/dist);
         }
 
-    // redraw field soon
-    if (!_fieldRedrawCounting)
+    if (!_fieldRedrawCounting) // redraw soon
     {
         _fieldRedrawCounting = true;
         _fieldRedrawTimer = 0.2;
@@ -289,9 +282,9 @@ void App::createBrushes()
     ofPixels &pix = _color.getPixelsRef();
 
 #define GRID_STEP 12
-#define RADIUS 6
+#define RADIUS 2
 #define DIST 100
-#define DENSITY 0.2
+#define DENSITY 0.6
 #define FUZZINESS 2
 
     for (int x = 0; x < 1024; x += GRID_STEP)
