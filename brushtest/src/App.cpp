@@ -6,24 +6,6 @@
 
 #include "Globals.h"
 
-Brush *tempBrush(const ofVec2f &pos)
-{
-    return new Brush(pos, ofVec2f(0, 0),
-            ofColor(255, 0, 0), 8,
-            200, 0.2);
-}
-
-void circleField(ofVec2f field[1024][768])
-{
-    for (int i = 0; i < 1024; ++i)
-        for (int j = 0; j < 768; ++j)
-        {
-            float x = i - 512;
-            float y = j - 384;
-            field[i][j] = ofVec2f(-y, x);
-        }
-}
-
 void flowField(Field &field, ofPixels pix)
 {
     // desaturate
@@ -107,36 +89,6 @@ void flowField(Field &field, ofPixels pix)
                 g.y = fabs(g.y);
 
             field.set(i, j, 50*g.normalized());
-        }
-}
-
-void gradientField(Field &field, const ofPixels &pix)
-{
-#define VAL(x, y) pix.getColor(x, y).r
-    for (int i = 1; i < 1023; ++i)
-        for (int j = 1; j < 767; ++j)
-        {
-            ofVec2f g(0, 0);
-
-            // left
-            g.x -= 2 * VAL(i - 1, j);
-            g.x -= VAL(i - 1, j - 1);
-            g.x -= VAL(i - 1, j + 1);
-            // right
-            g.x += 2 * VAL(i + 1, j);
-            g.x += VAL(i + 1, j - 1);
-            g.x += VAL(i + 1, j + 1);
-
-            // up
-            g.y -= 2 * VAL(i, j - 1);
-            g.y -= VAL(i - 1, j - 1);
-            g.y -= VAL(i + 1, j - 1);
-            // down
-            g.y += 2 * VAL(i, j + 1);
-            g.y += VAL(i - 1, j + 1);
-            g.y += VAL(i + 1, j + 1);
-
-            field.set(i, j, 50*g);
         }
 }
 
@@ -282,7 +234,7 @@ void App::createBrushes()
     ofPixels &pix = _color.getPixelsRef();
 
 #define GRID_STEP 12
-#define RADIUS 2
+#define RADIUS 6
 #define DIST 100
 #define DENSITY 0.6
 #define FUZZINESS 2
