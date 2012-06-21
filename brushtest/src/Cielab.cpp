@@ -1,17 +1,17 @@
-#include "Cielab.h"
+/* color conversion algorithm based on http://www.easyrgb.com/index.php?X=MATH */
 
-Palette::Palette (ofImage img) {
-	size_t w = img.getWidth();
-	size_t h = img.getHeight();
-	unsigned char * pixels = img.getPixels();
-	ofColor *colors = new ofColor[w*h];
-	
-	int x, y;
-	for (y = 0; y < h; y++)
-		for (x = 0; x < w; x++) {
-			int i = y*w*3 + x*3;
-			colors[y*w + x] = ofColor(pixels[i], pixels[i+1], pixels[i+2]);
-		}
+#include "Cielab.h"
+#include "median_cut.h"
+
+Palette::Palette (ofImage &img, int numColors) {
+	ofColor tmp;
+
+	std::list<Point> palette = medianCut((Point *) img.getPixels(), img.getWidth() * img.getHeight(), numColors);
+	std::list<Point>::iterator iter;
+	for (iter = palette.begin() ; iter != palette.end(); iter++) {
+		tmp = ofColor((int)iter->x[0], (int)iter->x[1], (int)iter->x[2]);
+		colorList.push_back(tmp);	
+    }
 }
 
 Cielab::Cielab(float L, float A, float B)

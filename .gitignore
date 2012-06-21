@@ -12,3 +12,4 @@
 *.suo
 *.vcxproj*
 */ipch
+*/build.log

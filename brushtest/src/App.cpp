@@ -6,6 +6,8 @@
 
 #include "Globals.h"
 
+#include "Cielab.h"
+
 void flowField(Field &field, ofPixels pix)
 {
     // desaturate
@@ -98,8 +100,11 @@ void App::setup()
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetBackgroundAuto(false);
 
-    // color image
-    _color.loadImage("catposterized.png");
+	// color image
+    _color.loadImage("cat.png");
+	_palette = new Palette(_color, 16);
+	
+	return;
 
     // force field
     _potential.loadImage("cat.png");
@@ -137,6 +142,12 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++) {
+			ofSetColor(_palette->getColor(i*4 + j));
+			ofCircle(i*100 + 50, j*100 + 50, 50);
+		}
+
     // draw brushes
     for (BrushList::iterator i = _brushes.begin();
             i != _brushes.end(); ++i)

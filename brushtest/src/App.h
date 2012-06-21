@@ -6,6 +6,7 @@
 
 #include "Brush.h"
 #include "Field.h"
+#include "Cielab.h"
 
 class App : 
     public ofBaseApp
@@ -15,6 +16,7 @@ class App :
         ofImage _potential;
 
         ofImage _color;
+		Palette *_palette;
 
         typedef std::vector<Brush *> BrushList;
         BrushList _brushes;

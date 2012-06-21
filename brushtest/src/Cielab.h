@@ -1,14 +1,19 @@
-#ifndef __COLORS_H__
-#define __COLORS_H__
+#ifndef __CIELAB_H__
+#define __CIELAB_H__
 
 #include "ofGraphics.h"
 #include "ofImage.h"
 
 class Palette {
-	vector<ofColor *> colorlist;
-	
+	std::vector<ofColor> colorList;
 public:
-	Palette(ofImage img);
+	Palette(ofImage &img, int numColors);
+	ofColor getColor(size_t i) {
+		if (i < colorList.size())
+			return colorList[i];
+		else
+			return ofColor::black;
+	}
 };
 
 struct Cielab {
@@ -16,9 +21,6 @@ struct Cielab {
 	Cielab(float L, float A, float B);
 	Cielab(const ofColor &rgb);
 	ofColor rgb();
-	Cielab operator+(const Cielab &r);
-	Cielab operator-(const Cielab &r);
-	Cielab operator*(float f);
 	Cielab lerp(const Cielab &r, float f);
 };
 
