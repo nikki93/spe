@@ -43,7 +43,11 @@ Cielab::Cielab(const ofColor &rgb) {
 	float x = r*0.4124 + g*0.3576 + b*0.1805;
 	float y = r*0.2126 + g*0.7152 + b*0.0722;
 	float z = r*0.0193 + g*0.1192 + b*0.9505;
+
+        l = x; a = y; this->b = z;
+
 	
+        /*
 	x /= 95.047;
 	y /= 100;
 	z /= 108.883;
@@ -70,26 +74,28 @@ Cielab::Cielab(const ofColor &rgb) {
 	l = 116*y - 16;
 	a = 500*(x-y);
 	this->b = 200*(y-z);
+        */
 }
 
 ofColor Cielab::rgb() {
+    /*
 	float y = (l + 16) / 116;
 	float x = a/500 + y;
 	float z = y - b/200;
 	float t1, t2 = 16 / 116.0;
 
-	/*if ( (t1 = pow(y, 3)) > 0.008856 ) 
-		y = t1;
-	else
-		y = ( y - t2 ) / 7.787;
-	if ( (t1 = pow(x, 3)) > 0.008856 )
-		x = t1 * 0.95047;
-	else
-		x = ( x - t2 ) * 0.12206;
-	if ( (t1 = pow(z, 3)) > 0.008856 ) 
-		z = t1 * 1.08883;
-	else
-		z = ( z - t2 ) * 0.13983;*/
+//	if ( (t1 = pow(y, 3)) > 0.008856 ) 
+//		y = t1;
+//	else
+//		y = ( y - t2 ) / 7.787;
+//	if ( (t1 = pow(x, 3)) > 0.008856 )
+//		x = t1 * 0.95047;
+//	else
+//		x = ( x - t2 ) * 0.12206;
+//	if ( (t1 = pow(z, 3)) > 0.008856 ) 
+//		z = t1 * 1.08883;
+//	else
+//		z = ( z - t2 ) * 0.13983;
 
 	if ( (t1 = pow(y, 3)) > 0.008856 ) 
 		y = t1;
@@ -107,11 +113,17 @@ ofColor Cielab::rgb() {
 	x *= 0.95047;
 	z *= 1.08883;
 
+        */
+
+    float  x = l, y = a, z = this->b;
+
+        x *= 0.01; y *= 0.01; z *= 0.01;
+
 	float r = 3.2406*x + -1.5372*y + -0.4986*z;
 	float g = -0.9689*x + 1.8758*y + 0.0415*z;
 	float b = 0.0557*x + -0.2040*y + 1.057*z;
 
-	t2 = 1/2.4;
+	float t2 = 1/2.4;
 	if ( r > 0.0031308 ) 
 		r = 1.055 * ( pow(r, t2) ) - 0.055;
 	else

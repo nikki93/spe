@@ -24,7 +24,7 @@ void App::setup()
     _light.setPosition(ofVec3f(0, 10, 0));
     _light.setPointLight();
     _light.setDiffuseColor(ofFloatColor(0.8, 0.5, 0.1));
-    _light.setAttenuation(1, 0.2, 0.8);
+    _light.setAttenuation(1, 0.1, 0.1);
 
     // make some particles
     int n = 10;
