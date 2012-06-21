@@ -5,6 +5,7 @@
 #include <ofImage.h>
 
 #include "Globals.h"
+#include "Cielab.h"
 
 #include "Cielab.h"
 
