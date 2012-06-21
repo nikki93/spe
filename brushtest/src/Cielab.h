@@ -1,5 +1,5 @@
-#ifndef __COLORS_H__
-#define __COLORS_H__
+#ifndef __CIELAB_H__
+#define __CIELAB_H__
 
 #include "ofGraphics.h"
 #include "ofImage.h"
