@@ -138,29 +138,6 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
-    ofColor rgb1 = ofColor::fromHex(0xe41a90);
-    ofColor rgb2 = ofColor::fromHex(0x00cf33);
-    Cielab cie1(rgb1);
-    Cielab cie2(rgb2);
-
-    float rgbDist = ofVec3f(rgb1.r - rgb2.r, rgb1.g - rgb2.g, 
-            rgb1.b - rgb2.b).length();
-    float cieDist = ofVec3f(cie1.l - cie2.l, cie1.a - cie2.a, 
-            cie1.b - cie2.b).length();
-
-    printf("rgbDist: %f, cieDist: %f\n", rgbDist, cieDist);
-
-    for (int i = 0; i < 1024; ++i)
-    {
-        float f = i / 1024.0;
-        ofColor tmp(rgb1);
-
-        ofSetColor(tmp.lerp(rgb2, f));
-        ofRect(i, 0, i + 1, 384);
-        ofSetColor(cie1.lerp(cie2, f).rgb());
-        ofRect(i, 384, i + 1, 768);
-    }
-
     // draw brushes
     for (BrushList::iterator i = _brushes.begin();
             i != _brushes.end(); ++i)
