@@ -13,3 +13,4 @@
 *.vcxproj*
 */ipch
 */build.log
+*/*/build.log

@@ -43,7 +43,7 @@ class App :
         void mouseReleased(int x, int y, int button);
         void windowResized(int w, int h) { }
 
-        void createBrushes(int levels, float maxRadius, float minRadius);
+        void createBrushes();
 };
 
 #endif

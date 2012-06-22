@@ -254,7 +254,7 @@ const float * App::getRadii(int levels, float maxRadius, float minRadius) {
 }
 
 //--------------------------------------------------------------
-void App::createBrushes(int levels, float maxRadius, float minRadius)
+void App::createBrushes()
 {
     ofPixels &pix = _color.getPixelsRef();
 
@@ -263,8 +263,6 @@ void App::createBrushes(int levels, float maxRadius, float minRadius)
 #define DENSITY 0.2
 #define FUZZINESS 2
 #define RADIUS 6
-
-    const float * sizes = App::getRadii(levels, maxRadius, minRadius);
 
     for (int x = 0; x < 1024; x += GRID_STEP)
         for (int y = 0; y < 768; y += GRID_STEP)
