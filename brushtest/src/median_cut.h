@@ -31,15 +31,18 @@ Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus
 
 #include "Palette.h"
 
+typedef ofColor Color;
+typedef unsigned char ColorElement;
+
 class Block
 {
-        ColorXYZ minCorner, maxCorner;
-        ColorXYZ *points;
+        Color minCorner, maxCorner;
+        Color *points;
         int pointsLength;
 
     public:
-        Block(ColorXYZ* points, int pointsLength);
-        ColorXYZ *getPoints();
+        Block(Color* points, int pointsLength);
+        Color *getPoints();
         int numPoints() const;
         int longestSideIndex() const;
         int longestSideLength() const;
@@ -69,13 +72,13 @@ class Block
 template <int index>
 struct CoordinatePointComparator
 {
-    bool operator()(ColorXYZ left, ColorXYZ right)
+    bool operator()(Color left, Color right)
     {
         return left.v[index] < right.v[index];
     }
 };
 
 // construct palette of given size from given image
-std::vector<ColorXYZ> medianCut(ColorXYZ *image, int numPoints, unsigned int desiredSize);
+std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSize);
 
 #endif /* #ifndef MEDIAN_CUT_H_ */

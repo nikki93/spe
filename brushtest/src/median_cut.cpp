@@ -29,18 +29,18 @@ Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus
 #include <algorithm>
 #include "median_cut.h"
 
-Block::Block(ColorXYZ *points, int pointsLength)
+Block::Block(Color *points, int pointsLength)
 {
     this->points = points;
     this->pointsLength = pointsLength;
     for(int i=0; i < 3; i++)
     {
-        minCorner.v[i] = std::numeric_limits<float>::min();
-        maxCorner.v[i] = std::numeric_limits<float>::max();
+        minCorner.v[i] = std::numeric_limits<ColorElement>::min();
+        maxCorner.v[i] = std::numeric_limits<ColorElement>::max();
     }
 }
 
-ColorXYZ *Block::getPoints()
+Color *Block::getPoints()
 {
     return points;
 }
@@ -94,7 +94,7 @@ void Block::shrink()
     }
 }
 
-std::vector<ColorXYZ> medianCut(ColorXYZ *image, int numPoints, unsigned int desiredSize)
+std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSize)
 {
     std::priority_queue<Block> blockQueue;
     Block initialBlock(image, numPoints);
@@ -105,9 +105,9 @@ std::vector<ColorXYZ> medianCut(ColorXYZ *image, int numPoints, unsigned int des
         Block longestBlock = blockQueue.top();
 
         blockQueue.pop();
-        ColorXYZ *begin  = longestBlock.getPoints();
-        ColorXYZ *median = longestBlock.getPoints() + (longestBlock.numPoints()+1)/2;
-        ColorXYZ *end    = longestBlock.getPoints() + longestBlock.numPoints();
+        Color *begin  = longestBlock.getPoints();
+        Color *median = longestBlock.getPoints() + (longestBlock.numPoints()+1)/2;
+        Color *end    = longestBlock.getPoints() + longestBlock.numPoints();
         switch(longestBlock.longestSideIndex())
         {
             case 0: std::nth_element(begin, median, end, CoordinatePointComparator<0>()); break;
@@ -121,14 +121,14 @@ std::vector<ColorXYZ> medianCut(ColorXYZ *image, int numPoints, unsigned int des
         blockQueue.push(block1);
         blockQueue.push(block2);
     }
-    std::vector<ColorXYZ> result;
+    std::vector<Color> result;
     while(!blockQueue.empty())
     {
         Block block = blockQueue.top();
         blockQueue.pop();
-        ColorXYZ *points = block.getPoints();
+        Color *points = block.getPoints();
 
-        float sum[3] = {0};
+        double sum[3] = {0};
         for(int i=0; i < block.numPoints(); i++)
         {
             for(int j=0; j < 3; j++)
@@ -137,7 +137,7 @@ std::vector<ColorXYZ> medianCut(ColorXYZ *image, int numPoints, unsigned int des
             }
         }
 
-        ColorXYZ averagePoint;
+        Color averagePoint;
         for(int j=0; j < 3; j++)
         {
             averagePoint.v[j] = sum[j] / block.numPoints();

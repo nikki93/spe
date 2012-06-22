@@ -6,12 +6,15 @@
 #include <ofLight.h>
 
 #include "Ball.h"
+#include "Model.h"
 
 class App : 
     public ofBaseApp
 {
     protected:
         ofCamera _cam;
+
+        Model _model;
 
         std::vector<Ball *> _balls;
 

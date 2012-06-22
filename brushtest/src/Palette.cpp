@@ -3,6 +3,7 @@
 #include "Palette.h"
 #include "median_cut.h"
 
+/*
 Palette::Palette(ofImage &img, int paletteSize) {
     // make XYZ image
     int n = img.getWidth() * img.getHeight();
@@ -15,6 +16,29 @@ Palette::Palette(ofImage &img, int paletteSize) {
 
     // do the median cut
     _colors = medianCut(imgXYZ, n, paletteSize);
+}
+*/
+
+Palette::Palette(ofImage &img, int paletteSize) {
+    // make XYZ image
+    int n = img.getWidth() * img.getHeight();
+
+    unsigned char *pix = img.getPixels();
+    ofColor *imgRGB = new ofColor[n];
+
+    for (int i = 0; i < n; ++i)
+        imgRGB[i].set(pix[i], pix[i + 1], pix[i + 2]);
+
+    _colors = medianCut((Color *) imgRGB, n, paletteSize);
+
+    /*
+    std::vector<ofColor> rgbs = medianCut((Color *) imgRGB, n, paletteSize);
+    _colors.clear();
+
+    for (std::vector<ofColor>::iterator i = rgbs.begin();
+            i != rgbs.end(); ++i)
+        _colors.push_back(ColorXYZ(*i));
+    */
 }
 
 void ColorXYZ::setRgb(unsigned char R, unsigned char G, unsigned char B) {

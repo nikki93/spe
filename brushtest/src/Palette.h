@@ -30,8 +30,14 @@ struct ColorXYZ {
     }
 };
 
+inline float dist(const ofColor &a, const ofColor &b)
+{
+    ofVec3f disp(a.r - b.r, a.g - b.g, a.b - b.b);
+    return disp.length();
+}
+
 class Palette {
-    typedef std::vector<ColorXYZ> ColorList;
+    typedef std::vector<ofColor> ColorList;
     ColorList _colors;
 
     public:
@@ -40,23 +46,40 @@ class Palette {
         ofColor getColor(size_t i)
         {
             if (i < _colors.size())
-                return _colors[i].getRgb();
+                return _colors[i];
             else
                 return ofColor::black;
         }
 
+        /*
         ofColor getClosest(const ofColor &col)
         {
             ColorXYZ xyz(col);
 
             float minDist = std::numeric_limits<float>::max(), currDist;
-            ofColor closest = ofColor::black;
+            ColorXYZ closest(0, 0, 0);
 
             for (ColorList::iterator i = _colors.begin();
                     i != _colors.end(); ++i)
                 if ((currDist = i->dist(xyz)) < minDist)
                 {
-                    closest = i->getRgb();
+                    closest = *i;
+                    minDist = currDist;
+                }
+
+            return closest.getRgb();
+        }
+        */
+        ofColor getClosest(const ofColor &col)
+        {
+            float minDist = std::numeric_limits<float>::max(), currDist;
+            ofColor closest(0, 0, 0);
+
+            for (ColorList::iterator i = _colors.begin();
+                    i != _colors.end(); ++i)
+                if ((currDist = dist(*i, col)) < minDist)
+                {
+                    closest = *i;
                     minDist = currDist;
                 }
 

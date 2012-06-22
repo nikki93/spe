@@ -245,6 +245,10 @@ void App::keyPressed(int key)
         case 'c':
             _forceField.clear();
             break;
+
+        case 'd': // middle
+            createBrushes();
+            break;
     }
 }
 //--------------------------------------------------------------
@@ -254,10 +258,6 @@ void App::mousePressed(int x, int y, int button)
     {
         case 0: // left
             //_brushes.push_back(tempBrush(ofVec2f(x, y)));
-            break;
-
-        case 1: // middle
-            createBrushes();
             break;
 
         case 2: // right
@@ -280,6 +280,9 @@ void App::createBrushes()
             ofVec2f pos(x, y);
             ofColor col = _palette->getClosest(pix.getColor(x, y));
             //ofColor col = pix.getColor(x, y);
+            //col.r = (int)((col.r/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
+            //col.g = (int)((col.g/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
+            //col.b = (int)((col.b/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
 
             _brushes.push_back(new Brush(pos, ofVec2f(0, 0), 
                         col, RADIUS, DIST, DENSITY, 

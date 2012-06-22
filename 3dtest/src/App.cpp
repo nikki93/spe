@@ -68,6 +68,9 @@ void App::draw()
             i != _balls.end(); ++i)
         (*i)->draw();
 
+    // model
+    _model.draw();
+
     // floor
     ofSetColor(ofColor::white);
     glBegin(GL_QUADS);
