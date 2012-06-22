@@ -25,6 +25,8 @@ class App :
         float _fieldRedrawTimer;
         bool _fieldRedrawCounting;
 
+        const float *getRadii(int levels, float minRadius, float maxRadius);
+
     public:
         App() : _forceField(1024, 768) { }
 
@@ -41,7 +43,7 @@ class App :
         void mouseReleased(int x, int y, int button);
         void windowResized(int w, int h) { }
 
-        void createBrushes();
+        void createBrushes(int levels, float maxRadius, float minRadius);
 };
 
 #endif

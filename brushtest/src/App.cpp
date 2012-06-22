@@ -240,22 +240,42 @@ void App::mousePressed(int x, int y, int button)
 void App::mouseReleased(int x, int y, int button)
 {
 }
+
+const float * App::getRadii(int levels, float maxRadius, float minRadius) {
+    float radiusStep = (maxRadius - minRadius) / (levels - 1);
+    float r = minRadius;
+    float * sizes = new float[levels];
+
+    for (int i = 0; i < levels; i++) {
+        sizes[i] = r;
+        r+= radiusStep;
+    }
+    return sizes;
+}
+
 //--------------------------------------------------------------
-void App::createBrushes()
+void App::createBrushes(int levels, float maxRadius, float minRadius)
 {
     ofPixels &pix = _color.getPixelsRef();
 
 #define GRID_STEP 12
-#define RADIUS 6
 #define DIST 100
 #define DENSITY 0.2
 #define FUZZINESS 2
+#define RADIUS 6
+
+    const float * sizes = App::getRadii(levels, maxRadius, minRadius);
 
     for (int x = 0; x < 1024; x += GRID_STEP)
         for (int y = 0; y < 768; y += GRID_STEP)
         {
             ofVec2f pos(x, y);
             ofColor col = pix.getColor(x, y);
+
+            // ID size of the object
+
+            // brush size is length from edge to edge in direction of the gradient
+
 
             _brushes.push_back(new Brush(pos, ofVec2f(0, 0), 
                         col, RADIUS, DIST, DENSITY, 
