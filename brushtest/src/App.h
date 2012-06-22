@@ -6,7 +6,7 @@
 
 #include "Brush.h"
 #include "Field.h"
-#include "Cielab.h"
+#include "Palette.h"
 
 class App : 
     public ofBaseApp
