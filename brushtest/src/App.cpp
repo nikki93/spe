@@ -5,9 +5,35 @@
 #include <ofImage.h>
 
 #include "Globals.h"
-#include "Cielab.h"
+#include "Palette.h"
 
-#include "Cielab.h"
+#define PALETTE_SIZE 70
+#define GRID_STEP 8
+#define RADIUS 5
+#define DIST 80
+#define DENSITY 0.5
+#define FUZZINESS 2
+
+void colorTest()
+{
+    ofColor rgb1 = ofColor::fromHex(0xe20bca);
+    ofColor rgb2 = ofColor::fromHex(0x17bb04);
+
+    ColorXYZ xyz1(rgb1);
+    ColorXYZ xyz2(rgb2);
+
+    for (int i = 0; i < 1024; ++i)
+    {
+        float f = i / 1024.0f;
+
+        ofColor tmp(rgb1);
+        ofSetColor(tmp.lerp(rgb2, f));
+        ofRect(i, 0, i + 1, 384);
+
+        ofSetColor(xyz1.lerp(xyz2, f).getRgb());
+        ofRect(i, 384, i + 1, 768);
+    }
+}
 
 void flowField(Field &field, ofPixels pix)
 {
@@ -101,11 +127,9 @@ void App::setup()
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetBackgroundAuto(false);
 
-	// color image
+    // color image
     _color.loadImage("cat.png");
-	_palette = new Palette(_color, 16);
-	
-	return;
+    _palette = new Palette(_color, PALETTE_SIZE);
 
     // force field
     _potential.loadImage("cat.png");
@@ -143,12 +167,6 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++) {
-			ofSetColor(_palette->getColor(i*4 + j));
-			ofCircle(i*100 + 50, j*100 + 50, 50);
-		}
-
     // draw brushes
     for (BrushList::iterator i = _brushes.begin();
             i != _brushes.end(); ++i)
@@ -157,6 +175,17 @@ void App::draw()
     // redraw field if needed
     if (_fieldRedrawCounting && _fieldRedrawTimer <= 0)
         clear();
+
+    // draw palette
+    int hor = sqrt((float) PALETTE_SIZE);
+    int n = PALETTE_SIZE;
+    for (int i = 0; i < PALETTE_SIZE; ++i)
+    {
+        int y = i / hor;
+        int x = i % hor;
+        ofSetColor(_palette->getColor(i));
+        ofCircle(x*20 + 10, y*20 + 10, 10);
+    }
 }
 //--------------------------------------------------------------
 void App::clear()
@@ -216,6 +245,10 @@ void App::keyPressed(int key)
         case 'c':
             _forceField.clear();
             break;
+
+        case 'd': // middle
+            createBrushes();
+            break;
     }
 }
 //--------------------------------------------------------------
@@ -225,10 +258,6 @@ void App::mousePressed(int x, int y, int button)
     {
         case 0: // left
             //_brushes.push_back(tempBrush(ofVec2f(x, y)));
-            break;
-
-        case 1: // middle
-            createBrushes();
             break;
 
         case 2: // right
@@ -268,7 +297,11 @@ void App::createBrushes()
         for (int y = 0; y < 768; y += GRID_STEP)
         {
             ofVec2f pos(x, y);
-            ofColor col = pix.getColor(x, y);
+            ofColor col = _palette->getClosest(pix.getColor(x, y));
+            //ofColor col = pix.getColor(x, y);
+            //col.r = (int)((col.r/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
+            //col.g = (int)((col.g/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
+            //col.b = (int)((col.b/255.0)*PALETTE_SIZE) * (255.0/PALETTE_SIZE);
 
             // ID size of the object
 

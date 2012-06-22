@@ -1,5 +1,5 @@
 /* Copyright (c) 2012 the authors listed at the following URL, and/or
-the authors of referenced articles or incorporated external code:
+   the authors of referenced articles or incorporated external code:
 http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus)?action=history&offset=20080309133934
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -29,116 +29,122 @@ Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus
 #include <algorithm>
 #include "median_cut.h"
 
-Block::Block(Point* points, int pointsLength)
+Block::Block(Color *points, int pointsLength)
 {
-	this->points = points;
-	this->pointsLength = pointsLength;
-	for(int i=0; i < NUM_DIMENSIONS; i++)
-	{
-		minCorner.x[i] = std::numeric_limits<unsigned char>::min();
-		maxCorner.x[i] = std::numeric_limits<unsigned char>::max();
-	}
+    this->points = points;
+    this->pointsLength = pointsLength;
+    for(int i=0; i < 3; i++)
+    {
+        minCorner.v[i] = std::numeric_limits<ColorElement>::min();
+        maxCorner.v[i] = std::numeric_limits<ColorElement>::max();
+    }
 }
-Point * Block::getPoints()
+
+Color *Block::getPoints()
 {
-	return points;
+    return points;
 }
 
 int Block::numPoints() const
 {
-	return pointsLength;
+    return pointsLength;
 }
+
 int Block::longestSideIndex() const
 {
-	int m = maxCorner.x[0] - minCorner.x[0];
-	int maxIndex = 0;
-	for(int i=1; i < NUM_DIMENSIONS; i++)
-	{
-		int diff = maxCorner.x[i] - minCorner.x[i];
-		if (diff > m)
-		{
-			m = diff;
-			maxIndex = i;
-		}
-	}
-	return maxIndex;
+    int m = maxCorner.v[0] - minCorner.v[0];
+    int maxIndex = 0;
+    for(int i=1; i < 3; i++)
+    {
+        int diff = maxCorner.v[i] - minCorner.v[i];
+        if (diff > m)
+        {
+            m = diff;
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
 }
+
 int Block::longestSideLength() const
 {
-	int i = longestSideIndex();
-	return maxCorner.x[i] - minCorner.x[i];
+    int i = longestSideIndex();
+    return maxCorner.v[i] - minCorner.v[i];
 }
+
 bool Block::operator<(const Block& rhs) const
 {
-	return this->longestSideLength() < rhs.longestSideLength();
+    return this->longestSideLength() < rhs.longestSideLength();
 }
+
 void Block::shrink()
 {
-	int i,j;
-	for(j=0; j<NUM_DIMENSIONS; j++)
-	{
-		minCorner.x[j] = maxCorner.x[j] = points[0].x[j];
-	}
-	for(i=1; i < pointsLength; i++)
-	{
-		for(j=0; j<NUM_DIMENSIONS; j++)
-		{
-			minCorner.x[j] = min(minCorner.x[j], points[i].x[j]);
-			maxCorner.x[j] = max(maxCorner.x[j], points[i].x[j]);
-		}
-	}
+    int i,j;
+    for(j=0; j<3; j++)
+    {
+        minCorner.v[j] = maxCorner.v[j] = points[0].v[j];
+    }
+    for(i=1; i < pointsLength; i++)
+    {
+        for(j=0; j<3; j++)
+        {
+            minCorner.v[j] = min(minCorner.v[j], points[i].v[j]);
+            maxCorner.v[j] = max(maxCorner.v[j], points[i].v[j]);
+        }
+    }
 }
-std::list<Point> medianCut(Point* image, int numPoints, unsigned int desiredSize)
+
+std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSize)
 {
-	std::priority_queue<Block> blockQueue;
-	Block initialBlock(image, numPoints);
-	initialBlock.shrink();
-	blockQueue.push(initialBlock);
-	while (blockQueue.size() < desiredSize && blockQueue.top().numPoints() > 1)
-	{
-		Block longestBlock = blockQueue.top();
+    std::priority_queue<Block> blockQueue;
+    Block initialBlock(image, numPoints);
+    initialBlock.shrink();
+    blockQueue.push(initialBlock);
+    while (blockQueue.size() < desiredSize && blockQueue.top().numPoints() > 1)
+    {
+        Block longestBlock = blockQueue.top();
 
-		blockQueue.pop();
-		Point * begin  = longestBlock.getPoints();
-	Point * median = longestBlock.getPoints() + (longestBlock.numPoints()+1)/2;
-	Point * end    = longestBlock.getPoints() + longestBlock.numPoints();
-	switch(longestBlock.longestSideIndex())
-	{
-	case 0: std::nth_element(begin, median, end, CoordinatePointComparator<0>()); break;
-	case 1: std::nth_element(begin, median, end, CoordinatePointComparator<1>()); break;
-	case 2: std::nth_element(begin, median, end, CoordinatePointComparator<2>()); break;
-	}
+        blockQueue.pop();
+        Color *begin  = longestBlock.getPoints();
+        Color *median = longestBlock.getPoints() + (longestBlock.numPoints()+1)/2;
+        Color *end    = longestBlock.getPoints() + longestBlock.numPoints();
+        switch(longestBlock.longestSideIndex())
+        {
+            case 0: std::nth_element(begin, median, end, CoordinatePointComparator<0>()); break;
+            case 1: std::nth_element(begin, median, end, CoordinatePointComparator<1>()); break;
+            case 2: std::nth_element(begin, median, end, CoordinatePointComparator<2>()); break;
+        }
 
-	Block block1(begin, median-begin), block2(median, end-median);
-	block1.shrink();
-	block2.shrink();
-		blockQueue.push(block1);
-		blockQueue.push(block2);
-	}
-	std::list<Point> result;
-	while(!blockQueue.empty())
-	{
-		Block block = blockQueue.top();
-		blockQueue.pop();
-		Point * points = block.getPoints();
+        Block block1(begin, median-begin), block2(median, end-median);
+        block1.shrink();
+        block2.shrink();
+        blockQueue.push(block1);
+        blockQueue.push(block2);
+    }
+    std::vector<Color> result;
+    while(!blockQueue.empty())
+    {
+        Block block = blockQueue.top();
+        blockQueue.pop();
+        Color *points = block.getPoints();
 
-		int sum[NUM_DIMENSIONS] = {0};
-		for(int i=0; i < block.numPoints(); i++)
-		{
-			for(int j=0; j < NUM_DIMENSIONS; j++)
-			{
-				sum[j] += points[i].x[j];
-			}
-		}
+        double sum[3] = {0};
+        for(int i=0; i < block.numPoints(); i++)
+        {
+            for(int j=0; j < 3; j++)
+            {
+                sum[j] += points[i].v[j];
+            }
+        }
 
-		Point averagePoint;
-		for(int j=0; j < NUM_DIMENSIONS; j++)
-		{
-			averagePoint.x[j] = sum[j] / block.numPoints();
-		}
+        Color averagePoint;
+        for(int j=0; j < 3; j++)
+        {
+            averagePoint.v[j] = sum[j] / block.numPoints();
+        }
 
-		result.push_back(averagePoint);
-	}
-	return result;
+        result.push_back(averagePoint);
+    }
+    return result;
 }
 
