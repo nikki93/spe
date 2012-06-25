@@ -2,47 +2,38 @@
 #define __MODEL_H__
 
 #include "glm/glm.h"
-
-void readOBJ(ofMesh &mesh, istream &in)
-{
-    std::string line;
-
-    while (!in.eof())
-    {
-        std::getline(in, line);
-
-        if (line[0] == '#')
-            continue;
-
-
-    }
-}
+#include "OBJ.h"
 
 class Model
 {
     protected:
         GLMmodel *_model;
 
+        ofMesh _mesh;
+
     public:
         Model()
         {
-            _model = glmReadOBJ("data/dolphin/dolphin_000001.obj");
-            glmUnitize(_model);
-            glmScale(_model, 30);
-
-            ofMesh
+            //_model = glmReadOBJ("data/dolphin/dolphin_000001.obj");
+            //glmUnitize(_model);
+            //glmScale(_model, 30);
+            OBJ::readOBJFromFile(_mesh, "data/dolphin/dolphin_000001.obj",
+                    ofMatrix4x4::newScaleMatrix(20, 20, 20));
+                std::cout << _mesh.getNumVertices();
+                std::cout << _mesh.getNumIndices();
         }
 
         ~Model()
         {
-            glmDelete(_model);
+            //glmDelete(_model);
         }
 
         void draw()
         {
-            glPushMatrix();
-                glTranslatef(0, 20, 0);
-                glmDraw(_model, GLM_SMOOTH);
+            glPushMatrix(); glTranslatef(0, 20, 0);
+
+                _mesh.draw();
+
             glPopMatrix();
         }
 };
