@@ -124,6 +124,9 @@ void flowField(Field &field, ofPixels pix)
 //--------------------------------------------------------------
 void App::setup()
 {
+    _fbo.allocate(1024, 768);
+    _shader.load("canvas");
+
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
     ofSetBackgroundAuto(false);
 
@@ -167,6 +170,9 @@ void App::update()
 //--------------------------------------------------------------
 void App::draw()
 {
+    
+    _fbo.begin();
+    
     // draw brushes
     for (BrushList::iterator i = _brushes.begin();
             i != _brushes.end(); ++i)
@@ -186,6 +192,15 @@ void App::draw()
         ofSetColor(_palette->getColor(i));
         ofCircle(x*20 + 10, y*20 + 10, 10);
     }
+
+    
+    _fbo.end();
+
+    _shader.begin();
+    ofSetColor(ofColor::cyan);
+    ofCircle(400, 400, 200);
+    //_fbo.draw(0, 0);
+    _shader.end();
 }
 //--------------------------------------------------------------
 void App::clear()
