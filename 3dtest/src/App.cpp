@@ -52,6 +52,9 @@ void App::update()
     for (std::vector<Ball *>::iterator i = _balls.begin();
             i != _balls.end(); ++i)
         (*i)->update(elapsed);
+
+    // model animation
+    _model.update(elapsed);
 }
 //--------------------------------------------------------------
 void App::draw()

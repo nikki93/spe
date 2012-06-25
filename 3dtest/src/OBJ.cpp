@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <map>
 
 namespace OBJ 
 {
@@ -13,6 +14,15 @@ namespace OBJ
         bool operator==(const MeshVertex &o)
         {
             return v == o.v && n == o.n && t == o.t;
+        }
+
+        MeshVertex()
+        {
+        }
+
+        MeshVertex(ofVec3f V, ofVec3f N, ofVec2f T)
+            : v(V), n(N), t(T)
+        {
         }
 
         MeshVertex &read(const std::string &str, const std::vector<ofVec3f> &vertices,
@@ -28,15 +38,34 @@ namespace OBJ
             return *this;
         }
     };
+    typedef std::map<MeshVertex, size_t> IndexMap;
 
-    size_t findOrAdd(std::vector<MeshVertex> &vs, const MeshVertex &v)
+    // lexicographical ordering on all POD elements
+    bool operator<(const MeshVertex &a, const MeshVertex &b)
     {
-        size_t p;
-        std::vector<MeshVertex>::iterator i = std::find(vs.begin(), vs.end(), v);
-        p = i - vs.begin();
-        if (i == vs.end())
-            vs.push_back(v);
-        return p;
+        if (a.v.x < b.v.x)
+            return true;
+        else if (a.v.x == b.v.x)
+            if (a.v.y < b.v.y)
+                return true;
+            else if (a.v.y == b.v.y)
+                if (a.v.z < b.v.z)
+                    return true;
+                else if (a.v.z == b.v.z)
+                    if (a.n.x < b.n.x)
+                        return true;
+                    else if (a.n.x == b.n.x)
+                        if (a.n.y < b.n.y)
+                            return true;
+                        else if (a.n.y == b.n.y)
+                            if (a.n.z < b.n.z)
+                                return true;
+                            else if (a.n.z == b.n.z)
+                                if (a.t.x < b.t.x)
+                                    return true;
+                                else if (a.t.x == b.t.x)
+                                    return a.t.y < b.t.y;
+        return false;
     }
 
     void readOBJFromFile(ofMesh &mesh, std::string filename, const ofMatrix4x4 &transform)
@@ -61,10 +90,10 @@ namespace OBJ
         std::vector<ofVec2f> texcoords;
 
         // final list
-        std::vector<MeshVertex> buffer;
+        IndexMap indices;
         MeshVertex vert;
 
-        int i = 0;
+        size_t i = 0;
 
         // read the file
         while (!in.eof())
@@ -92,18 +121,35 @@ namespace OBJ
             }
             else if (w == "f")
             {
-                 // find/add vertices
+                // find/add vertices
                 ss >> w;
-                size_t i0 = findOrAdd(buffer, vert.read(w.c_str(), vertices, normals, texcoords));
+                vert.read(w.c_str(), vertices, normals, texcoords);
+                std::pair<IndexMap::iterator, bool> ret
+                    = indices.insert(std::make_pair(vert, i));
+                if (ret.second)
+                    ++i;
+                size_t i0 = ret.first->second;
 
                 ss >> w;
-                size_t i1 = findOrAdd(buffer, vert.read(w.c_str(), vertices, normals, texcoords));
+                vert.read(w.c_str(), vertices, normals, texcoords);
+                ret = indices.insert(std::make_pair(vert, i));
+                if (ret.second)
+                    ++i;
+                size_t i1 = ret.first->second;
 
                 ss >> w;
-                size_t i2 = findOrAdd(buffer, vert.read(w.c_str(), vertices, normals, texcoords));
+                vert.read(w.c_str(), vertices, normals, texcoords);
+                ret = indices.insert(std::make_pair(vert, i));
+                if (ret.second)
+                    ++i;
+                size_t i2 = ret.first->second;
 
                 ss >> w;
-                size_t i3 = findOrAdd(buffer, vert.read(w.c_str(), vertices, normals, texcoords));
+                vert.read(w.c_str(), vertices, normals, texcoords);
+                ret = indices.insert(std::make_pair(vert, i));
+                if (ret.second)
+                    ++i;
+                size_t i3 = ret.first->second;
 
                 // add triangles
                 mesh.addTriangle(i0, i1, i2);
@@ -112,12 +158,23 @@ namespace OBJ
         }
 
         // finally, put the vertex data into the mesh (faces already added)
-        for (std::vector<MeshVertex>::iterator i = buffer.begin();
-                i != buffer.end(); ++i)
+        int n = indices.size();
+
+        ofVec3f *verts = new ofVec3f[n];
+        ofVec3f *norms = new ofVec3f[n];
+        ofVec2f *texs = new ofVec2f[n];
+
+        for (IndexMap::iterator i = indices.begin();
+                i != indices.end(); ++i)
         {
-            mesh.addVertex(i->v);
-            mesh.addNormal(i->n);
+            verts[i->second] = i->first.v;
+            norms[i->second] = i->first.n;
+            texs[i->second] = i->first.t;
         }
+
+        mesh.addVertices(verts, n);
+        mesh.addVertices(norms, n);
+        mesh.addTexCoords(texs, n);
     }
 }
 
