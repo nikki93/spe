@@ -68,17 +68,17 @@ namespace OBJ
         return false;
     }
 
-    void readOBJFromFile(ofMesh &mesh, std::string filename, const ofMatrix4x4 &transform)
+    void readOBJ(ofMesh &mesh, std::string filename, const ofMatrix4x4 &transform)
     {
         std::ifstream in(filename.c_str(), std::ifstream::in);
         if (in.good())
-            readOBJFromStream(mesh, in, transform);
+            readOBJ(mesh, in, transform);
         else
             std::cerr << "Error opening file '" << filename 
                 << "'" << std::endl;
     }
 
-    void readOBJFromStream(ofMesh &mesh, istream &in, const ofMatrix4x4 &transform)
+    void readOBJ(ofMesh &mesh, istream &in, const ofMatrix4x4 &transform)
     {
         std::string line;
         ofVec2f vec2;
@@ -93,7 +93,7 @@ namespace OBJ
         IndexMap indices;
         MeshVertex vert;
 
-        size_t i = 0;
+        size_t i = 0; // index counter
 
         // read the file
         while (!in.eof())
@@ -121,39 +121,37 @@ namespace OBJ
             }
             else if (w == "f")
             {
-                // find/add vertices
+                // make triangles from first vertex and every adjacent
+                // pair among other ones
+
                 ss >> w;
                 vert.read(w.c_str(), vertices, normals, texcoords);
                 std::pair<IndexMap::iterator, bool> ret
                     = indices.insert(std::make_pair(vert, i));
                 if (ret.second)
                     ++i;
-                size_t i0 = ret.first->second;
+                size_t i0 = ret.first->second; // first
 
                 ss >> w;
                 vert.read(w.c_str(), vertices, normals, texcoords);
                 ret = indices.insert(std::make_pair(vert, i));
                 if (ret.second)
                     ++i;
-                size_t i1 = ret.first->second;
+                size_t i1 = ret.first->second; // pair vertex 1
 
-                ss >> w;
-                vert.read(w.c_str(), vertices, normals, texcoords);
-                ret = indices.insert(std::make_pair(vert, i));
-                if (ret.second)
-                    ++i;
-                size_t i2 = ret.first->second;
+                while (!ss.eof())
+                {
+                    ss >> w;
+                    vert.read(w.c_str(), vertices, normals, texcoords);
+                    ret = indices.insert(std::make_pair(vert, i));
+                    if (ret.second)
+                        ++i;
+                    size_t i2 = ret.first->second; // pair vertex 2
 
-                ss >> w;
-                vert.read(w.c_str(), vertices, normals, texcoords);
-                ret = indices.insert(std::make_pair(vert, i));
-                if (ret.second)
-                    ++i;
-                size_t i3 = ret.first->second;
+                    mesh.addTriangle(i0, i1, i2); // add triangle
 
-                // add triangles
-                mesh.addTriangle(i0, i1, i2);
-                mesh.addTriangle(i0, i2, i3);
+                    i1 = i2; // push pair vertex 2 to pair vertex 1
+                }
             }
         }
 
@@ -173,7 +171,7 @@ namespace OBJ
         }
 
         mesh.addVertices(verts, n);
-        mesh.addVertices(norms, n);
+        mesh.addNormals(norms, n);
         mesh.addTexCoords(texs, n);
     }
 }

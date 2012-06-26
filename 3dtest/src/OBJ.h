@@ -6,9 +6,9 @@
 
 namespace OBJ
 {
-    void readOBJFromFile(ofMesh &mesh, std::string filename, 
+    void readOBJ(ofMesh &mesh, std::string filename, 
             const ofMatrix4x4 &transform = ofMatrix4x4::newIdentityMatrix());
-    void readOBJFromStream(ofMesh &mesh, istream &in,
+    void readOBJ(ofMesh &mesh, istream &in,
             const ofMatrix4x4 &transform = ofMatrix4x4::newIdentityMatrix());
 }
 

@@ -4,6 +4,8 @@
 #include <ofBaseApp.h>
 #include <ofCamera.h>
 #include <ofLight.h>
+#include <ofFbo.h>
+#include <ofShader.h>
 
 #include "Ball.h"
 #include "Model.h"
@@ -13,12 +15,12 @@ class App :
 {
     protected:
         ofCamera _cam;
-
-        Model _model;
+        ofLight _light;
+        ofFbo _fbo;
+        ofShader _shader;
 
         std::vector<Ball *> _balls;
-
-        ofLight _light;
+        Model *_model;
 
     public:
         App();
