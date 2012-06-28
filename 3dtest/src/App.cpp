@@ -38,6 +38,10 @@ void App::setup()
     _blurXYFBO.allocate(1024, 768, GL_RGB);
     _blurYShader.load("basicvert.vert", "blurY.frag");
 
+    _gradFBO.allocate(1024, 768, GL_RGB);
+    _gradShader.load("basicvert.vert", "grad.frag");
+    _gradPix.allocate(1024, 768, OF_IMAGE_COLOR);
+
     // camera
     _cam.setPosition(ofVec3f(100, 100, 100));
     _cam.lookAt(ofVec3f(0, 0, 0));
@@ -123,7 +127,7 @@ void App::draw()
     _cam.end();
     _sceneFBO.end();
 
-    // _sceneFBO --(_edgeShader)--> _edgeFBO
+    // _blurXYFBO --(_edgeShader)--> _edgeFBO
     _edgeFBO.begin();
     _edgeShader.begin(); _edgeShader.setUniformTexture("input", _sceneFBO.getTextureReference(), 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,7 +135,7 @@ void App::draw()
     _edgeShader.end();
     _edgeFBO.end();
 
-    // _sceneFBO --(_blurXShader)--> _blurXFBO
+    // _sceneFBO --(_blurXShader)--> _blurXFBO --(_blurYShader)--> _blurXYFBO
     _blurXFBO.begin();
     _blurXShader.begin(); _blurXShader.setUniformTexture("input", _sceneFBO.getTextureReference(), 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -139,7 +143,6 @@ void App::draw()
     _blurXShader.end();
     _blurXFBO.end();
 
-    // _blurXFBO --(_blurYShader)--> _blurXYFBO
     _blurXYFBO.begin();
     _blurYShader.begin(); _blurYShader.setUniformTexture("input", _blurXFBO.getTextureReference(), 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -147,13 +150,39 @@ void App::draw()
     _blurYShader.end();
     _blurXYFBO.end();
 
+    // _blurXYFBO --(_gradShader)--> _gradFBO
+    _gradFBO.begin();
+    _gradShader.begin(); _gradShader.setUniformTexture("input", _blurXYFBO.getTextureReference(), 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        drawQuad(ofVec2f(0, 0), ofVec2f(1024, 768), ofVec2f(1024, 768));
+    _gradShader.end();
+    _gradFBO.end();
+
     // draw FBOs
     _flipShader.begin();
-    _edgeFBO.getTextureReference().bind();
-    drawQuad(ofVec2f(0, 0), ofVec2f(512, 384), ofVec2f(1024, 768));
-    _blurXYFBO.getTextureReference().bind();
-    drawQuad(ofVec2f(512, 0), ofVec2f(512, 384), ofVec2f(1024, 768));
+
+        _edgeFBO.getTextureReference().bind();
+        drawQuad(ofVec2f(0, 0), ofVec2f(512, 384), ofVec2f(1024, 768));
+
+        _blurXYFBO.getTextureReference().bind();
+        drawQuad(ofVec2f(512, 0), ofVec2f(512, 384), ofVec2f(1024, 768));
+
     _flipShader.end();
+
+    // draw directions
+    glDisable(GL_DEPTH);
+    _gradFBO.readToPixels(_gradPix);
+    ofSetColor(ofColor::blue);
+    for (int i = 0; i < 1024; i += 5)
+        for (int j = 0; j < 768; j += 5)
+        {
+            ofFloatColor c = _gradPix.getColor(i, 768-j);
+            ofVec2f v(1 - 2*c.g, 2*c.r - 1);
+            ofVec2f p(i, j);
+            p = ofVec2f(0, 384) + 0.5*p;
+            ofLine(p, p + 5*v);
+        }
+    glEnable(GL_DEPTH);
 }
 //--------------------------------------------------------------
 void App::exit()

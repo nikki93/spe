@@ -27,9 +27,12 @@ class App :
 
         ofFbo _blurXFBO;
         ofShader _blurXShader;
-
         ofFbo _blurXYFBO;
         ofShader _blurYShader;
+
+        ofFbo _gradFBO;
+        ofShader _gradShader;
+        ofPixels _gradPix;
 
     public:
         App();
