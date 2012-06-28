@@ -16,11 +16,20 @@ class App :
     protected:
         ofCamera _cam;
         ofLight _light;
-        ofFbo _fbo;
-        ofShader _shader;
-
         std::vector<Ball *> _balls;
         Model *_model;
+
+        ofFbo _sceneFBO;
+        ofShader _flipShader;
+
+        ofFbo _edgeFBO;
+        ofShader _edgeShader;
+
+        ofFbo _blurXFBO;
+        ofShader _blurXShader;
+
+        ofFbo _blurXYFBO;
+        ofShader _blurYShader;
 
     public:
         App();
