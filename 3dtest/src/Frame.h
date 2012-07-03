@@ -24,12 +24,12 @@
  */
 
 #define BRUSH_STEP_TIME 0.005
-#define FORCE_MAG 500
-#define GRID_STEP 10
-#define RADIUS 8
-#define DIST 100
-#define DENSITY 0.5
-#define FUZZINESS 2
+#define FORCE_MAG 100
+#define GRID_STEP 8
+#define RADIUS 5
+#define DIST 40
+#define DENSITY 0.3
+#define FUZZINESS 7
 
 class Frame
 {
@@ -104,8 +104,8 @@ class Frame
             // now use normals+depth to do the edge drawing
             pipe(_edgeFBO, _edgeShader, _normDepthFBO);
 
-            // use blurred scene+depth to calculate gradient field
-            pipe(_blurXFBO, _blurXShader, _sceneDepthFBO);
+            // use blurred normals+depth to calculate gradient field
+            pipe(_blurXFBO, _blurXShader, _normDepthFBO);
             pipe(_blurXYFBO, _blurYShader, _blurXFBO);
             pipe(_gradFBO, _gradShader, _blurXYFBO);
 
@@ -114,7 +114,7 @@ class Frame
             for (int i = 0; i < 1024; ++i)
                 for (int j = 0; j < 768; ++j)
                 {
-                    ofFloatColor c = _pix.getColor(i, 768 - j);
+                    ofFloatColor c = _pix.getColor(i, j);
                     _field.set(i, j, FORCE_MAG*ofVec2f(1 - 2*c.g, 2*c.r - 1));
                 }
 
@@ -158,7 +158,7 @@ class Frame
             for (int i = 0; i < 1024; i += GRID_STEP)
                 for (int j = 0; j < 768; j += GRID_STEP)
                 {
-                    ofColor col = _pix.getColor(i, 768 - j);
+                    ofColor col = _pix.getColor(i, j);
                     _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
                                 col, RADIUS, DIST, DENSITY, 
                                 FUZZINESS));
@@ -275,12 +275,14 @@ class Frame
             //     _paintFBO
             //     _combineFBO
 
-            //debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(512, 384));
-            //debugDrawFBO(_edgeFBO, ofVec2f(512, 0), ofVec2f(512, 384));
-            //debugDrawFBO(_paintFBO, ofVec2f(0, 384), ofVec2f(512, 384));
-            //debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
+            //_field.draw(ofVec2f(0, 0), 10);
 
-            debugDrawFBO(_paintFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(512, 384));
+            debugDrawFBO(_edgeFBO, ofVec2f(512, 0), ofVec2f(512, 384));
+            debugDrawFBO(_gradFBO, ofVec2f(0, 384), ofVec2f(512, 384));
+            debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
+
+            //debugDrawFBO(_paintFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
         }
 };
 
