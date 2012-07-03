@@ -5,7 +5,7 @@ uniform sampler2DRect input;
 float avg(sampler2DRect tex, vec2 pos)
 {
     vec4 c = texture2DRect(tex, pos);
-    return (c.r + c.g + c.b) / 3.0;
+    return c.a * (c.r + c.g + c.b) / 3.0;
 }
 vec2 sobel(sampler2DRect tex, vec2 pos, float incr)
 {

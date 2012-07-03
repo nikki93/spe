@@ -15,7 +15,7 @@ void main()
 {
     vec2 pos = vec2(gl_TexCoord[0].s, gl_TexCoord[0].t);
     vec4 e = edge(input, pos, 1);
-    if (length(e) > 0.1)
+    if (length(e.rgb) > 0.1 || e.a > 0.008)
         gl_FragColor = vec4(0, 0, 0, 1);
     else
         gl_FragColor = vec4(1, 1, 1, 1);;

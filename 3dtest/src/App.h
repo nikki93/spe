@@ -6,9 +6,27 @@
 #include <ofLight.h>
 #include <ofFbo.h>
 #include <ofShader.h>
+#include <ofImage.h>
 
 #include "Ball.h"
 #include "Model.h"
+#include "Brush.h"
+#include "Field.h"
+
+/*
+ * Pipeline
+ * --------
+ *
+ * render: scenedepth, normdepth
+ *
+ * normdepth --(edge)--> edge
+ * scenedepth --(blurX)--> blurX --(blurY)--> blurXY --(grad)--> grad
+ *
+ * scenedepth, egde, grad --(paint)--> paint
+ *
+ * paint, edge --(combine)--> result
+ *
+ */
 
 class App : 
     public ofBaseApp
@@ -18,9 +36,15 @@ class App :
         ofLight _light;
         std::vector<Ball *> _balls;
         Model *_model;
-
-        ofFbo _sceneFBO;
+        Field _field;
+        ofPixels _pix;
         ofShader _flipShader;
+
+        ofFbo _sceneDepthFBO;
+        ofShader _sceneDepthShader;
+
+        ofFbo _normDepthFBO;
+        ofShader _normDepthShader;
 
         ofFbo _edgeFBO;
         ofShader _edgeShader;
@@ -29,10 +53,18 @@ class App :
         ofShader _blurXShader;
         ofFbo _blurXYFBO;
         ofShader _blurYShader;
-
         ofFbo _gradFBO;
         ofShader _gradShader;
-        ofPixels _gradPix;
+
+        ofFbo _paintFBO;
+
+        ofFbo _combineFBO;
+        ofShader _combineShader;
+
+        typedef std::vector<Brush *> BrushList;
+        BrushList _brushes;
+
+        ofImage _screenshot;
 
     public:
         App();
@@ -41,6 +73,8 @@ class App :
         void update();
         void draw();
         void exit();
+
+        void drawScene();
 
         void keyPressed(int key);
         void keyReleased(int key);

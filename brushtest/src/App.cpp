@@ -148,35 +148,34 @@ void App::update()
     // count down to field redraw
     if (_fieldRedrawCounting && _fieldRedrawTimer > 0)
         _fieldRedrawTimer -= elapsed;
+    
+    //static int frameCount = 0;
+    //std::cout << ++frameCount << std::endl;
 
     // move brushes by force field, remove brush if done
-    for (BrushList::iterator iter = _brushes.begin();
-            iter != _brushes.end(); )
-    {
-        Brush *brush = *iter;
-        ofVec2f pos = brush->getPosition();
-        int i = ofClamp(pos.x, 0, 1023);
-        int j = ofClamp(pos.y, 0, 767);
-
-        if (!brush->move(_forceField.get(i, j), 0.005))
-        {
-            delete brush;
-            iter = _brushes.erase(iter);
-        }
-        else
-            ++iter;
-    }
 }
 //--------------------------------------------------------------
 void App::draw()
 {
-    
-    _fbo.begin();
-    
-    // draw brushes
-    for (BrushList::iterator i = _brushes.begin();
-            i != _brushes.end(); ++i)
-        (*i)->draw();
+    int N = 50;
+    while (N--)
+        for (BrushList::iterator iter = _brushes.begin();
+                iter != _brushes.end(); )
+        {
+            Brush *brush = *iter;
+            brush->draw();
+            ofVec2f pos = brush->getPosition();
+            int i = ofClamp(pos.x, 0, 1023);
+            int j = ofClamp(pos.y, 0, 767);
+
+            if (!brush->move(_forceField.get(i, j), 0.008))
+            {
+                delete brush;
+                iter = _brushes.erase(iter);
+            }
+            else
+                ++iter;
+        }
 
     // redraw field if needed
     if (_fieldRedrawCounting && _fieldRedrawTimer <= 0)
@@ -192,15 +191,6 @@ void App::draw()
         ofSetColor(_palette->getColor(i));
         ofCircle(x*20 + 10, y*20 + 10, 10);
     }
-
-    
-    _fbo.end();
-
-    _shader.begin();
-    ofSetColor(ofColor::cyan);
-    ofCircle(400, 400, 200);
-    //_fbo.draw(0, 0);
-    _shader.end();
 }
 //--------------------------------------------------------------
 void App::clear()
@@ -301,12 +291,6 @@ const float * App::getRadii(int levels, float maxRadius, float minRadius) {
 void App::createBrushes()
 {
     ofPixels &pix = _color.getPixelsRef();
-
-#define GRID_STEP 12
-#define DIST 100
-#define DENSITY 0.2
-#define FUZZINESS 2
-#define RADIUS 6
 
     for (int x = 0; x < 1024; x += GRID_STEP)
         for (int y = 0; y < 768; y += GRID_STEP)
