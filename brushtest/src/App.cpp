@@ -3,7 +3,7 @@
 #include <ofAppRunner.h>
 #include <ofImage.h>
 #include "Globals.h"
-#include "Palette.h"a
+#include "Palette.h"
 #define PALETTE_SIZE 70
 #define GRID_STEP 8
 #define RADIUS 5
@@ -140,29 +140,39 @@ void App::setup()
     _edges.update();
     _fieldRedrawTimer = -1;
     _fieldRedrawCounting = false;
+
+    _brushInd = -1;
 }
 //--------------------------------------------------------------
 void App::update()
 {
+    bool allDead = true;
     float elapsed = ofGetLastFrameTime();
     // count down to field redraw
     if (_fieldRedrawCounting && _fieldRedrawTimer > 0)
         _fieldRedrawTimer -= elapsed;
     // move brushes by force field, remove brush if done
-    for (BrushList::iterator iter = _brushes.begin();
-            iter != _brushes.end(); )
-    {
-        Brush *brush = *iter;
-        ofVec2f pos = brush->getPosition();
-        int i = ofClamp(pos.x, 0, 1023);
-        int j = ofClamp(pos.y, 0, 767);
-        if (!brush->move(_forceField.get(i, j), 0.005))
+    if (_brushInd >= 0) {
+        for (BrushList::iterator iter = _brushes[_brushInd].begin();
+                iter != _brushes[_brushInd].end(); )
         {
-            delete brush;
-            iter = _brushes.erase(iter);
+            Brush *brush = *iter;
+            ofVec2f pos = brush->getPosition();
+            int i = ofClamp(pos.x, 0, 1023);
+            int j = ofClamp(pos.y, 0, 767);
+            if (!brush->move(_forceField.get(i, j), 0.005))
+            {
+                delete brush;
+                iter = _brushes[_brushInd].erase(iter);
+            }
+            else {
+                ++iter;
+                allDead = false;
+            }
         }
-        else
-            ++iter;
+        if (allDead && _brushInd > 0) {
+            _brushInd--;
+        }
     }
 }
 //--------------------------------------------------------------
@@ -173,9 +183,10 @@ void App::draw()
     ofSetColor(ofColor::white);
     
     // draw brushes
-    for (BrushList::iterator i = _brushes.begin();
-            i != _brushes.end(); ++i)
-        (*i)->draw();
+    if (_brushInd >= 0)
+        for (BrushList::iterator i = _brushes[_brushInd].begin();
+                i != _brushes[_brushInd].end(); ++i)
+            (*i)->draw();
     // redraw field if needed
     if (_fieldRedrawCounting && _fieldRedrawTimer <= 0)
         clear();
@@ -204,16 +215,20 @@ void App::draw()
 void App::clear()
 {
     // remove brushes
-    while (!_brushes.empty())
+    int i = _brushes.size() - 1;
+    while (i >= 0)
     {
-        delete _brushes.back();
+        while (!_brushes[i].empty()) {
+            delete _brushes[i].back();
+            _brushes[i].pop_back();
+        }
         _brushes.pop_back();
+        i--;
     }
     // draw background
     ofSetColor(ofColor::white);
-	
     _potential.draw(0, 0);
-	_edges.draw(0,0);
+_edges.draw(0,0);
     _forceField.draw(ofVec2f(0, 0), 10);
     _fieldRedrawCounting = false;
 }
@@ -295,43 +310,46 @@ void App::createBrushes()
     
 #define GRID_STEP 12
 #define DIST 200
-#define DENSITY 0.5
+#define DENSITY 0.02
 #define FUZZINESS 2
 #define RADIUS 6
-#define MIN_RAD 10.0
-#define MAX_RAD 50.0
-#define LEVELS 2
+
+    int levels = 2;
+    
+    _maxRad = 50;
+    _minRad = 10;
+    int gridStep = 0.7 * _minRad;
+
     int brushStep;
-    if (MAX_RAD - MIN_RAD == 0)
+    if (_maxRad - _minRad == 0)
         brushStep = 1;
     else
-        brushStep = (MAX_RAD-MIN_RAD) / (LEVELS-1); //0 division!!!!
-    _brushSizes.resize(LEVELS);
+        brushStep = (_maxRad - _minRad) / (levels - 1); //0 division!!!!
+    _brushes.resize(levels);
     // coarse fill layer - maybe can be translucent?
-    
+    /*
     float r = MAX_RAD;
-    for (int y = 0; y < 768; y += MAX_RAD / 2) {
-        for (int x = 0; x < 1024; x += MAX_RAD / 2) {
+    for (int y = 0; y < 768; y += MAX_RAD * 0.8) {
+        for (int x = 0; x < 1024; x += MAX_RAD * 0.8) {
             _brushes.push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                 _palette->getClosest(pix.getColor(x, y)), 
-                r, DIST, FUZZINESS));
+                r, 0.05, DIST, FUZZINESS, 2));
         }
-    }
-    
+    }*/
+
     const float THRESHOLD = 240.0;
     bool cont;
     int lower, upper;
     int ind;
-    Brush * tmp;
-    for (int y = 0; y < 768; y += GRID_STEP) {
-        for (int x = 0; x < 1024; x += GRID_STEP) {
+    for (int y = 0; y < 768; y += gridStep) {
+        for (int x = 0; x < 1024; x += gridStep) {
             cont = true;
             ind = 0;
-            for (int r = 0; r <= MAX_RAD + 1; r++) {
-                if (r > MIN_RAD + ind * brushStep)
+            for (int r = 0; r <= _maxRad + 1; r++) {
+                if (r > _minRad + ind * brushStep)
                     ind++;
-                lower = max(0, y - r);
-                upper = min(y + r, 768);
+                lower = std::max(0, y - r);
+                upper = std::min(y + r, 768);
                 // left
                 if (x - r >= 0)
                     for (int j = lower; j <= upper; j++)
@@ -346,8 +364,8 @@ void App::createBrushes()
                             cont = false;
                             break;
                         }
-                lower = max(0, x - r);
-                upper = min(x + r, 1023);
+                lower = std::max(0, x - r);
+                upper = std::min(x + r, 1023);
                 // top
                 if (!cont && y - r >= 0)
                     for (int j = lower; j <= upper; j++)
@@ -362,21 +380,31 @@ void App::createBrushes()
                             cont = false;
                             break;
                         }
-                if (!cont || r > MAX_RAD) {
-                    if (ind > 0)
-                        _brushSizes[ind - 1].push_back(ofVec2f(x, y));
+                if (!cont || r > _maxRad) {
+                    if (ind > 0) {
+                        _brushes[ind - 1].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
+                            _palette->getClosest(pix.getColor(x, y)), 
+                            _minRad + ind * brushStep, DENSITY, DIST, FUZZINESS));
+                        gridStep = 0.7 * ();
+                    }
                     break;
                 }
             }
         }
     }
-    for(std::vector<std::vector<ofVec2f>>::reverse_iterator rit = _brushSizes.rbegin(); 
-        rit != _brushSizes.rend(); rit++)
-			for (std::vector<ofVec2f>::iterator it2 = (*rit).begin(); 
-			it2 != (*rit).end(); it2++)
-
-        _brushes.push_back(tmp = new Brush(*it2, ofVec2f(0, 0), 
-            _palette->getClosest(pix.getColor((*it2).x, (*it2).y)), 
-            MIN_RAD, DENSITY, DIST, FUZZINESS));
+    int i = 0;
+    int tmp;
+    /*for(std::vector<std::vector<ofVec2f>>::reverse_iterator rit = _brushes.rbegin(); 
+        rit != _brushes.rend(); rit++) {
+        for (std::vector<ofVec2f>::iterator it2 = (*rit).begin(); 
+            it2 != (*rit).end(); it2++) {
+            tmp = _minRad + i * brushStep;
+            _brushes[].push_back(new Brush(*it2, ofVec2f(0, 0), 
+                _palette->getClosest(pix.getColor((*it2).x, (*it2).y)), 
+                tmp, DENSITY, DIST, FUZZINESS));
+        }
+        i++;
+    }*/
+    _brushInd = levels - 1;
 }
 //--------------------------------------------------------------

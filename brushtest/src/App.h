@@ -14,11 +14,18 @@ class App :
         Field _forceField;
         ofImage _potential;
         ofImage _edges; // temp
-        std::vector<std::vector<ofVec2f>> _brushSizes;
-        ofImage _color;
-Palette *_palette;
+
         typedef std::vector<Brush *> BrushList;
-        BrushList _brushes;
+        std::vector<BrushList> _brushes;
+        int _brushInd; 
+
+        ofImage _color;
+        float _maxRad;
+        float _minRad;
+
+Palette *_palette;
+        
+        //BrushList _brushes;
         ofVec2f _mousePrev;
         float _fieldRedrawTimer;
         bool _fieldRedrawCounting;

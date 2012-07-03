@@ -48,8 +48,9 @@ class Brush
         float _totalDist;
 
     public:
-        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float density,
-            float dist, float fuzziness)
+        // specified dot size
+		Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float density,
+            float dist, float fuzziness, float dotRadius = 1)
             : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
         {
             // scale density by area
@@ -61,15 +62,8 @@ class Brush
                             //ofColor::fromHsb(ofRandom(0, 255),
                                 //ofRandom(200, 255),
                                 //ofRandom(128, 190)),
-                            ofRandom(BRUSH_DOT_RADIUS),
+                            ofRandom(0.4 * dotRadius, 1.6 * dotRadius),
                             ofRandom(1, fuzziness)));
-        }
-
-		Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist, 
-            float fuzziness)
-            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
-        {
-            _dots.push_back(Dot(ofVec2f(0, 0), color, radius, fuzziness));
 		}
 
         ofVec2f getPosition()
