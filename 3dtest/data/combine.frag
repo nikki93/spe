@@ -6,7 +6,7 @@ uniform sampler2DRect paint;
 void main()
 {
     vec2 paintpos = gl_TexCoord[0].st;
-    vec2 edgepos = vec2(gl_TexCoord[0].s, 768 - gl_TexCoord[0].t);
+    vec2 edgepos = gl_TexCoord[0].st;
     gl_FragColor = texture2DRect(edge, edgepos) * texture2DRect(paint, paintpos);
 }
 

@@ -72,7 +72,6 @@ class Brush
         // return false if destroy, true if continue
         bool move(const ofVec2f &force, float dt)
         {
-            _vel *= 0.2;
             _vel += force*dt;
             ofVec2f disp = _vel*dt;
             float dispLen = disp.length();

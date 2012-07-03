@@ -18,6 +18,6 @@ vec4 blurX(sampler2DRect tex, vec2 pos, float incr)
 void main()
 {
     vec2 pos = vec2(gl_TexCoord[0].s, gl_TexCoord[0].t);
-    gl_FragColor = blurX(input, pos, 1);
+    gl_FragColor = blurX(input, pos, 4);
 }
 
