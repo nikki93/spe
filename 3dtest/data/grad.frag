@@ -32,7 +32,7 @@ vec2 sobel(sampler2DRect tex, vec2 pos, float incr)
 
 void main()
 {
-    vec2 pos = vec2(gl_TexCoord[0].s, gl_TexCoord[0].t);
+    vec2 pos = gl_TexCoord[0].st;
     gl_FragColor = vec4(0.5*sobel(input, pos, 1) + 0.5, 0, 1);
 }
 
