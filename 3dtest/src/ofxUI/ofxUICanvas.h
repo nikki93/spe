@@ -657,6 +657,8 @@ public:
      
     void draw()
     {
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+
         ofPushStyle(); 
         glDisable(GL_DEPTH_TEST);       
         glDisable(GL_LIGHTING);
@@ -687,9 +689,11 @@ public:
             }
         }
 
-        glEnable(GL_DEPTH_TEST); 
-        glEnable(GL_LIGHTING);
+        //glEnable(GL_DEPTH_TEST); 
+        //glEnable(GL_LIGHTING);
         ofPopStyle();         
+
+        glPopAttrib();
     }
     
     void exit()

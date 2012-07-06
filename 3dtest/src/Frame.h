@@ -180,6 +180,8 @@ class Frame
         void drawBrushes()
         {
             _paintFBO.begin();
+            glPushAttrib(GL_ALL_ATTRIB_BITS);
+
             glDisable(GL_DEPTH_TEST);
             ofDisableLighting();
             ofEnableAlphaBlending();
@@ -188,9 +190,7 @@ class Frame
                     iter != _brushes.end(); ++iter)
                 (*iter)->draw();
 
-            ofDisableAlphaBlending();
-            ofEnableLighting();
-            glEnable(GL_DEPTH_TEST);
+            glPopAttrib();
             _paintFBO.end();
         }
 
@@ -250,6 +250,8 @@ class Frame
         // helper methods for drawing quads
         static void drawQuad(const ofVec2f &start, const ofVec2f &size, const ofVec2f &texSize)
         {
+            glPushAttrib(GL_ALL_ATTRIB_BITS);
+
             glDisable(GL_DEPTH_TEST);
             ofDisableLighting();
             ofDisableAlphaBlending();
@@ -261,6 +263,8 @@ class Frame
             glTexCoord2f(texSize.x, texSize.y); glVertex3f(end.x,   end.y,   0);  
             glTexCoord2f(0,         texSize.y); glVertex3f(start.x, end.y,   0);  
             glEnd();   
+
+            glPopAttrib();
         }
         static void drawFullScreenQuad()
         {

@@ -99,6 +99,7 @@ void App::draw()
 void App::drawScene()
 {
     _cam.begin();
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
 
     // clear
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,6 +137,7 @@ void App::drawScene()
     glVertex3f(-100, 0, 100);
     glEnd();
 
+    glPopAttrib();
     _cam.end();
 }
 //--------------------------------------------------------------
