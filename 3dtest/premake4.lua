@@ -28,6 +28,10 @@ includedirs {
     -- project
     "./src",
 
+    -- libs
+    "./src/ofxUI",
+    "./src/ofxXmlSettings",
+
     ofpath .. "/libs/openFrameworks",
     ofpath .. "/libs/openFrameworks/video",
     ofpath .. "/libs/openFrameworks/types",
@@ -111,7 +115,7 @@ libdirs  {
 links  { 
     "openFrameworks", "kiss", "tess2", "PocoNet", "PocoXML", "PocoUtil", 
     "PocoFoundation", "mpg123", "GLEW", "cairo", "glut", "GL", "openal", "sndfile", 
-    "freeimage", "GLU" 
+    "freeimage", "GLU", "freetype"
 }
 
 -- Build options ----------------------------------------------------------------------------
@@ -125,12 +129,12 @@ configuration "Debug"
     flags { "Symbols" }
     defines { "DEBUG", "_DEBUG" }
     objdir "obj/debug"
-    targetdir "bin/debug"
+    targetdir "bin"
     targetsuffix "_d"
 
 configuration "Release"
     objdir "obj/release"
-    targetdir "bin/release"
+    targetdir "bin"
 
 ---------------------------------------------------------------------------------------------
 
@@ -152,6 +156,7 @@ includedirs {
     -- project
     "./src",
 
+    -- libs
     ofpath .. "/libs/openFrameworks",
     ofpath .. "/libs/openFrameworks/video",
     ofpath .. "/libs/openFrameworks/types",
@@ -217,13 +222,13 @@ configuration "Debug"
     defines { "DEBUG", "_DEBUG" }
     links "openframeworksLibDebug"
     objdir "obj/debug"
-    targetdir "bin/debug"
+    targetdir "bin"
     targetsuffix "_d"
 
 configuration "Release"
     links "openframeworksLib"
     objdir "obj/release"
-    targetdir "bin/release"
+    targetdir "bin"
 
 ---------------------------------------------------------------------------------------------
 

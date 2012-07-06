@@ -12,6 +12,7 @@
 #include "Model.h"
 #include "Brush.h"
 #include "Field.h"
+#include "GUI.h"
 
 class Frame;
 
@@ -28,6 +29,12 @@ class App :
         // rendering
         Frame *_frame;
 
+        // frame timer
+        int _timer;
+
+        // gui
+        GUI *_gui;
+
     public:
         App();
 
@@ -36,6 +43,8 @@ class App :
         void draw();
         void exit();
 
+        void newFrame();
+        void stepScene(float elapsed);
         void drawScene();
 
         void keyPressed(int key);

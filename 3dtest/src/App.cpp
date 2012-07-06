@@ -6,6 +6,8 @@
 
 #include "Frame.h"
 
+#define MAX_TIMER 150
+
 static void drawQuad(const ofVec2f &start, const ofVec2f &size, const ofVec2f &texSize)
 {
     ofVec2f end = start + size;
@@ -24,12 +26,9 @@ App::App()
 //--------------------------------------------------------------
 void App::setup()
 {
-    // graphics setup
-    glEnable(GL_DEPTH_TEST);
-    ofEnableLighting();
-
     // renderer setup
     _frame = new Frame(*this);
+    _timer = MAX_TIMER;
 
     // camera
     _cam.setPosition(ofVec3f(100, 100, 100));
@@ -49,7 +48,7 @@ void App::setup()
                     ofVec3f(0, ofRandom(-5, 5), 0), // vel
                     ofVec3f(0, -20, 0), // acc
                     ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255)), // col
-                    ofRandom(2, 5) // radius
+                    ofRandom(4, 14) // radius
                     ));
 
     // model
@@ -57,16 +56,26 @@ void App::setup()
             ofMatrix4x4::newScaleMatrix(20, 20, 20));
     _model->pos = ofVec3f(0, 20, 0);
 
-    // render first frame
-    _frame->newFrame();
-    _frame->createBrushes();
+    // gui
+    _gui = new GUI();
 }
 //--------------------------------------------------------------
 void App::update()
 {
-    //float elapsed = ofGetLastFrameTime();
-    float elapsed = 0.03;
-
+    if (_timer <= 0)
+        newFrame();
+    else
+    {
+        // brush rendering
+        _frame->moveBrushes();
+        _frame->drawBrushes();
+        _frame->combineFrame();
+        --_timer;
+    }
+}
+//--------------------------------------------------------------
+void App::stepScene(float elapsed)
+{
     // camera rotation
     ofVec3f camPos = _cam.getPosition();
     camPos.rotate(30 * elapsed, ofVec3f(0, 1, 0));
@@ -80,11 +89,6 @@ void App::update()
 
     // model animation
     _model->update(elapsed);
-
-    // rendering
-    _frame->moveBrushes();
-    _frame->drawBrushes();
-    _frame->combineFrame();
 }
 //--------------------------------------------------------------
 void App::draw()
@@ -96,41 +100,50 @@ void App::drawScene()
 {
     _cam.begin();
 
-        // clear
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // clear
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // axis
-        ofSetColor(ofColor::gray);
-        ofSphere(2);
-        ofDrawAxis(20);
+    glEnable(GL_DEPTH_TEST);
+    ofDisableAlphaBlending();
+    ofEnableLighting();
 
-        // balls
-        for (std::vector<Ball *>::iterator i = _balls.begin();
-                i != _balls.end(); ++i)
-            (*i)->draw();
+    ofBackground(ofColor::white);
 
-        // model
-        ofSetColor(ofColor::fromHex(0x6088d7));
-        _model->draw();
+    // axis
+    ofSetColor(ofColor::gray);
+    ofSphere(2);
+    ofDrawAxis(20);
 
-        // floor
-        ofSetColor(ofColor::fromHex(0xd8baba));
-        glBegin(GL_QUADS);
-            glNormal3f(0, 1, 0);
-            glVertex3f(100, 0, 100);
-            glNormal3f(0, 1, 0);
-            glVertex3f(100, 0, -100);
-            glNormal3f(0, 1, 0);
-            glVertex3f(-100, 0, -100);
-            glNormal3f(0, 1, 0);
-            glVertex3f(-100, 0, 100);
-        glEnd();
+    // balls
+    for (std::vector<Ball *>::iterator i = _balls.begin();
+            i != _balls.end(); ++i)
+        (*i)->draw();
+
+    // model
+    ofSetColor(ofColor::fromHex(0x6088d7));
+    _model->draw();
+
+    // floor
+    ofSetColor(ofColor::fromHex(0xd8baba));
+    glBegin(GL_QUADS);
+    glNormal3f(0, 1, 0);
+    glVertex3f(100, 0, 100);
+    glNormal3f(0, 1, 0);
+    glVertex3f(100, 0, -100);
+    glNormal3f(0, 1, 0);
+    glVertex3f(-100, 0, -100);
+    glNormal3f(0, 1, 0);
+    glVertex3f(-100, 0, 100);
+    glEnd();
 
     _cam.end();
 }
 //--------------------------------------------------------------
 void App::exit()
 {
+    // remove gui
+    delete _gui;
+
     // remove balls
     while (!_balls.empty())
     {
@@ -142,14 +155,27 @@ void App::exit()
     delete _model;
 }
 //--------------------------------------------------------------
+void App::newFrame()
+{
+    static int count = 0;
+    _frame->writeToFile("vid/img" + ofToString(count++) + ".jpg");
+
+    _frame->endFrame();
+    _frame->newFrame();
+    _frame->createBrushes();
+
+    stepScene(0.03);
+
+    _timer = MAX_TIMER;
+}
+//--------------------------------------------------------------
 void App::keyPressed(int key)
 {
     switch (key)
     {
         case 'n':
-            _frame->endFrame();
-            _frame->newFrame();
-            _frame->createBrushes();
+            newFrame();
+            break;
     }
 }
 //--------------------------------------------------------------

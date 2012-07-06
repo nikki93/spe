@@ -25,9 +25,9 @@
 
 #define BRUSH_STEP_TIME 0.005
 #define FORCE_MAG 100
-#define GRID_STEP 8
+#define GRID_STEP 7
 #define RADIUS 5
-#define DIST 40
+#define DIST 60
 #define DENSITY 0.3
 #define FUZZINESS 7
 
@@ -60,6 +60,7 @@ class Frame
 
         ofFbo _combineFBO;
         ofShader _combineShader;
+        ofImage _fileImg;
 
         typedef std::vector<Brush *> BrushList;
         BrushList _brushes;
@@ -72,6 +73,7 @@ class Frame
               _app(app)
         {
             _pix.allocate(1024, 768, OF_IMAGE_COLOR);
+            _fileImg.allocate(1024, 768, OF_IMAGE_COLOR);
 
             // allocate FBOs
             _sceneDepthFBO.allocate(1024, 768, GL_RGBA);
@@ -101,15 +103,15 @@ class Frame
             render(_sceneDepthFBO, _sceneDepthShader);
             render(_normDepthFBO, _normDepthShader);
 
-            // now use normals+depth to do the edge drawing
-            pipe(_edgeFBO, _edgeShader, _normDepthFBO);
+            // normdepth --(edge)--> edge
+            pipe(_edgeFBO, _edgeShader, "input", &_normDepthFBO);
 
-            // use blurred normals+depth to calculate gradient field
-            pipe(_blurXFBO, _blurXShader, _normDepthFBO);
-            pipe(_blurXYFBO, _blurYShader, _blurXFBO);
-            pipe(_gradFBO, _gradShader, _blurXYFBO);
+            // normdepth --(blur)--(grad)--> grad
+            pipe(_blurXFBO, _blurXShader, "input", &_sceneDepthFBO);
+            pipe(_blurXYFBO, _blurYShader, "input", &_blurXFBO);
+            pipe(_gradFBO, _gradShader, "input", &_blurXYFBO);
 
-            // write perpendiculars of gradient vectors to the force field
+            // grad --> field
             _gradFBO.readToPixels(_pix);
             for (int i = 0; i < 1024; ++i)
                 for (int j = 0; j < 768; ++j)
@@ -118,30 +120,17 @@ class Frame
                     _field.set(i, j, FORCE_MAG*ofVec2f(1 - 2*c.g, 2*c.r - 1));
                 }
 
-            // clear paint buffer
+            // clear paint
             _paintFBO.begin();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             ofBackground(ofColor::white);
             _paintFBO.end();
         }
 
-        // combine edge and brush results into _combineFBO
         void combineFrame()
         {
-            _combineFBO.begin();
-            _combineShader.begin(); 
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            _combineShader.setUniformTexture("edge", _edgeFBO.getTextureReference(), 
-                    _edgeFBO.getTextureReference().getTextureData().textureID);
-            _combineShader.setUniformTexture("paint", _paintFBO.getTextureReference(), 
-                    _paintFBO.getTextureReference().getTextureData().textureID);
-
-            drawQuad(ofVec2f(0, 0), ofVec2f(1024, 768), ofVec2f(1024, 768));
-
-            _combineShader.end();
-            _combineFBO.end();
+            // edge, paint --(combine)--> combine
+            pipe(_combineFBO, _combineShader, "edge", &_edgeFBO, "paint", &_paintFBO);
         }
 
         // end an animation frame
@@ -159,9 +148,10 @@ class Frame
                 for (int j = 0; j < 768; j += GRID_STEP)
                 {
                     ofColor col = _pix.getColor(i, j);
-                    _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
-                                col, RADIUS, DIST, DENSITY, 
-                                FUZZINESS));
+                    if (col.a < 200)
+                        _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
+                                    col, RADIUS, DIST, DENSITY, 
+                                    FUZZINESS));
                 }
         }
 
@@ -191,14 +181,16 @@ class Frame
         {
             _paintFBO.begin();
             glDisable(GL_DEPTH_TEST);
+            ofDisableLighting();
             ofEnableAlphaBlending();
 
             for (BrushList::iterator iter = _brushes.begin();
                     iter != _brushes.end(); ++iter)
                 (*iter)->draw();
 
-            glEnable(GL_DEPTH_TEST);
             ofDisableAlphaBlending();
+            ofEnableLighting();
+            glEnable(GL_DEPTH_TEST);
             _paintFBO.end();
         }
 
@@ -209,6 +201,14 @@ class Frame
                     iter != _brushes.end(); ++iter)
                 delete *iter;
             _brushes.clear();
+        }
+
+        // write combined result to file
+        void writeToFile(const std::string &name)
+        {
+            _combineFBO.readToPixels(_pix);
+            _fileImg.setFromPixels(_pix);
+            _fileImg.saveImage(name);
         }
 
         // helper methods for 'source --(shader)--> dest' stuff
@@ -222,13 +222,23 @@ class Frame
             shader.end();
             dest.end();
         }
-        void pipe(ofFbo &dest, ofShader &shader, ofFbo &input)
+        void pipe(ofFbo &dest, ofShader &shader, 
+                const char *name1 = NULL, ofFbo *input1 = NULL,
+                const char *name2 = NULL, ofFbo *input2 = NULL,
+                const char *name3 = NULL, ofFbo *input3 = NULL)
         {
             dest.begin();
             shader.begin();
 
-            shader.setUniformTexture("input", input.getTextureReference(), 
-                    input.getTextureReference().getTextureData().textureID);
+            if (name1)
+                shader.setUniformTexture(name1, input1->getTextureReference(), 
+                        input1->getTextureReference().getTextureData().textureID);
+            if (name2)
+                shader.setUniformTexture(name2, input2->getTextureReference(), 
+                        input2->getTextureReference().getTextureData().textureID);
+            if (name3)
+                shader.setUniformTexture(name3, input3->getTextureReference(), 
+                        input3->getTextureReference().getTextureData().textureID);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             drawQuad(ofVec2f(0, 0), ofVec2f(1024, 768), ofVec2f(1024, 768));
@@ -240,6 +250,10 @@ class Frame
         // helper methods for drawing quads
         static void drawQuad(const ofVec2f &start, const ofVec2f &size, const ofVec2f &texSize)
         {
+            glDisable(GL_DEPTH_TEST);
+            ofDisableLighting();
+            ofDisableAlphaBlending();
+
             ofVec2f end = start + size;
             glBegin(GL_QUADS);  
             glTexCoord2f(0,         0        ); glVertex3f(start.x, start.y, 0);  

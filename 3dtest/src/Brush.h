@@ -5,7 +5,7 @@
 #include "ofVec3f.h"
 #include "ofGraphics.h"
 
-#define BRUSH_DOT_RADIUS 0.2, 1.8
+#define BRUSH_DOT_RADIUS 0.1, 1.2
 #define BRUSH_POS_OSC_RANGE -1.6, 0.7
 #define BRUSH_RADIUS_OSC_RANGE -0.04, 0.015
 
@@ -30,10 +30,6 @@ class Brush
                   dieSpeed(dSpeed)
             {
             }
-
-            void sweep(const ofVec2f &newpos)
-            {
-            }
         };
 
         typedef std::vector<Dot> DotList;
@@ -56,10 +52,7 @@ class Brush
 
             while (count--)
                 _dots.push_back(Dot(ofVec2f(ofRandom(-radius, radius), ofRandom(-radius, radius)),
-                            color * (1.0 + ofRandom(-0.5, 0.5)),
-                            //ofColor::fromHsb(ofRandom(0, 255),
-                                //ofRandom(200, 255),
-                                //ofRandom(128, 190)),
+                            color * (1.0 + ofRandom(-0.4, 0.4)),
                             ofRandom(BRUSH_DOT_RADIUS),
                             ofRandom(1, fuzziness)));
         }
@@ -92,8 +85,6 @@ class Brush
 
         void draw()
         {
-            ofEnableAlphaBlending();
-
             for (DotList::iterator d = _dots.begin();
                     d != _dots.end(); ++d)
             {
@@ -116,8 +107,6 @@ class Brush
                 else
                     d->pos.y -= ofRandom(BRUSH_POS_OSC_RANGE);
             }
-
-            ofDisableAlphaBlending();
         }
 };
 
