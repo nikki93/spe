@@ -5,6 +5,7 @@
 #include <ofShader.h>
 
 #include "Field.h"
+#include "Settings.h"
 
 // handles drawing of a single frames of animation
 
@@ -22,14 +23,6 @@
  * paint, edge --(combine)--> result
  *
  */
-
-#define BRUSH_STEP_TIME 0.005
-#define FORCE_MAG 100
-#define GRID_STEP 7
-#define RADIUS 5
-#define DIST 60
-#define DENSITY 0.3
-#define FUZZINESS 7
 
 class Frame
 {
@@ -117,7 +110,7 @@ class Frame
                 for (int j = 0; j < 768; ++j)
                 {
                     ofFloatColor c = _pix.getColor(i, j);
-                    _field.set(i, j, FORCE_MAG*ofVec2f(1 - 2*c.g, 2*c.r - 1));
+                    _field.set(i, j, Settings::fieldMagnitude*ofVec2f(1 - 2*c.g, 2*c.r - 1));
                 }
 
             // clear paint
@@ -144,14 +137,14 @@ class Frame
         {
             _sceneDepthFBO.readToPixels(_pix);
 
-            for (int i = 0; i < 1024; i += GRID_STEP)
-                for (int j = 0; j < 768; j += GRID_STEP)
+            for (int i = 0; i < 1024; i += Settings::brushGridStep)
+                for (int j = 0; j < 768; j += Settings::brushGridStep)
                 {
                     ofColor col = _pix.getColor(i, j);
                     if (col.a < 200)
                         _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
-                                    col, RADIUS, DIST, DENSITY, 
-                                    FUZZINESS));
+                                    col, Settings::brushRadius, Settings::brushLength, 
+                                    Settings::brushDensity, Settings::brushFuzziness));
                 }
         }
 
@@ -166,7 +159,7 @@ class Frame
                 int i = ofClamp(pos.x, 0, 1023);
                 int j = ofClamp(pos.y, 0, 767);
 
-                if (!brush->move(_field.get(i, j), BRUSH_STEP_TIME))
+                if (!brush->move(_field.get(i, j), Settings::brushStepTime))
                 {
                     delete brush;
                     iter = _brushes.erase(iter);
@@ -180,7 +173,7 @@ class Frame
         void drawBrushes()
         {
             _paintFBO.begin();
-            glPushAttrib(GL_ALL_ATTRIB_BITS);
+            glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 
             glDisable(GL_DEPTH_TEST);
             ofDisableLighting();
@@ -250,7 +243,7 @@ class Frame
         // helper methods for drawing quads
         static void drawQuad(const ofVec2f &start, const ofVec2f &size, const ofVec2f &texSize)
         {
-            glPushAttrib(GL_ALL_ATTRIB_BITS);
+            glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 
             glDisable(GL_DEPTH_TEST);
             ofDisableLighting();
@@ -278,6 +271,7 @@ class Frame
 
             fbo.getTextureReference().bind();
             drawQuad(start, size, ofVec2f(1024, 768));
+            fbo.getTextureReference().unbind();
 
             _flipShader.end();
         }
@@ -295,12 +289,12 @@ class Frame
 
             //_field.draw(ofVec2f(0, 0), 10);
 
-            debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(512, 384));
-            debugDrawFBO(_edgeFBO, ofVec2f(512, 0), ofVec2f(512, 384));
-            debugDrawFBO(_gradFBO, ofVec2f(0, 384), ofVec2f(512, 384));
-            debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
+            //debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(512, 384));
+            //debugDrawFBO(_edgeFBO, ofVec2f(512, 0), ofVec2f(512, 384));
+            //debugDrawFBO(_gradFBO, ofVec2f(0, 384), ofVec2f(512, 384));
+            //debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
 
-            //debugDrawFBO(_paintFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            debugDrawFBO(_combineFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
         }
 };
 

@@ -5,6 +5,7 @@
 #include <ofAppRunner.h>
 
 #include "Frame.h"
+#include "Settings.h"
 
 #define MAX_TIMER 150
 
@@ -62,7 +63,7 @@ void App::setup()
 //--------------------------------------------------------------
 void App::update()
 {
-    if (_timer <= 0)
+    if (Settings::autoUpdate && _timer <= 0)
         newFrame();
     else
     {
@@ -70,7 +71,11 @@ void App::update()
         _frame->moveBrushes();
         _frame->drawBrushes();
         _frame->combineFrame();
-        --_timer;
+
+        if (Settings::autoUpdate)
+            --_timer;
+        else
+            _timer = -1;
     }
 }
 //--------------------------------------------------------------
@@ -94,12 +99,13 @@ void App::stepScene(float elapsed)
 void App::draw()
 {
     _frame->debugDraw();
+    ofSetColor(ofColor::black);
 }
 //--------------------------------------------------------------
 void App::drawScene()
 {
     _cam.begin();
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 
     // clear
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

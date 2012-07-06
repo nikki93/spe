@@ -657,14 +657,13 @@ public:
      
     void draw()
     {
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-
+        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
         ofPushStyle(); 
+
         glDisable(GL_DEPTH_TEST);       
         glDisable(GL_LIGHTING);
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA); 
+        ofEnableAlphaBlending();
         ofSetRectMode(OF_RECTMODE_CORNER);         
-        glEnable(GL_TEXTURE_2D);
         ofSetLineWidth(1.0);         
 
         drawPadded();
@@ -689,10 +688,7 @@ public:
             }
         }
 
-        //glEnable(GL_DEPTH_TEST); 
-        //glEnable(GL_LIGHTING);
         ofPopStyle();         
-
         glPopAttrib();
     }
     

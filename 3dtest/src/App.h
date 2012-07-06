@@ -7,6 +7,7 @@
 #include <ofFbo.h>
 #include <ofShader.h>
 #include <ofImage.h>
+#include <ofTrueTypeFont.h>
 
 #include "Ball.h"
 #include "Model.h"
