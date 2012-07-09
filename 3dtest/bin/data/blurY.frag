@@ -2,7 +2,7 @@
 
 uniform sampler2DRect input;
 
-vec4 blurX(sampler2DRect tex, vec2 pos, float incr)
+vec4 blurY(sampler2DRect tex, vec2 pos, float incr)
 {
     return texture2DRect(tex, vec2(pos.x, pos.y - 4*incr)) * 0.000215825
          + texture2DRect(tex, vec2(pos.x, pos.y - 3*incr)) * 0.00579007
@@ -18,6 +18,6 @@ vec4 blurX(sampler2DRect tex, vec2 pos, float incr)
 void main()
 {
     vec2 pos = gl_TexCoord[0].st;
-    gl_FragColor = blurX(input, pos, 1);
+    gl_FragColor = blurY(input, pos, 2.8);
 }
 

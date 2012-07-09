@@ -53,6 +53,7 @@ class Frame
 
         ofFbo _combineFBO;
         ofShader _combineShader;
+        ofImage _canvas;
         ofImage _fileImg;
 
         typedef std::vector<Brush *> BrushList;
@@ -87,6 +88,9 @@ class Frame
             _blurYShader.load("basicvert.vert", "blurY.frag");
             _gradShader.load("basicvert.vert", "grad.frag");
             _combineShader.load("basicvert.vert", "combine.frag");
+
+            // load canvas texture
+            _canvas.loadImage("canvas/canvas3.png");
         }
 
         // start a new animation frame
@@ -97,12 +101,14 @@ class Frame
             render(_normDepthFBO, _normDepthShader);
 
             // normdepth --(edge)--> edge
-            pipe(_edgeFBO, _edgeShader, "input", &_normDepthFBO);
+            pipe(_edgeFBO, _edgeShader, "input", &_normDepthFBO.getTextureReference());
 
             // normdepth --(blur)--(grad)--> grad
-            pipe(_blurXFBO, _blurXShader, "input", &_sceneDepthFBO);
-            pipe(_blurXYFBO, _blurYShader, "input", &_blurXFBO);
-            pipe(_gradFBO, _gradShader, "input", &_blurXYFBO);
+            _blurXShader.setUniform1f("blurSize", 5.0);
+            _blurYShader.setUniform1f("blurSize", 5.0);
+            pipe(_blurXFBO, _blurXShader, "input", &_sceneDepthFBO.getTextureReference());
+            pipe(_blurXYFBO, _blurYShader, "input", &_blurXFBO.getTextureReference());
+            pipe(_gradFBO, _gradShader, "input", &_blurXYFBO.getTextureReference());
 
             // grad --> field
             _gradFBO.readToPixels(_pix);
@@ -123,7 +129,10 @@ class Frame
         void combineFrame()
         {
             // edge, paint --(combine)--> combine
-            pipe(_combineFBO, _combineShader, "edge", &_edgeFBO, "paint", &_paintFBO);
+            pipe(_combineFBO, _combineShader, 
+                    "edge", &_edgeFBO.getTextureReference(), 
+                    "paint", &_paintFBO.getTextureReference(), 
+                    "canvas", &_canvas.getTextureReference());
         }
 
         // end an animation frame
@@ -208,28 +217,27 @@ class Frame
         void render(ofFbo &dest, ofShader &shader)
         {
             dest.begin(); 
+            shader.begin();
 
-            _app.drawScene(shader);
+            _app.drawScene();
 
+            shader.end();
             dest.end();
         }
         void pipe(ofFbo &dest, ofShader &shader, 
-                const char *name1 = NULL, ofFbo *input1 = NULL,
-                const char *name2 = NULL, ofFbo *input2 = NULL,
-                const char *name3 = NULL, ofFbo *input3 = NULL)
+                const char *name1 = NULL, ofTexture *input1 = NULL,
+                const char *name2 = NULL, ofTexture *input2 = NULL,
+                const char *name3 = NULL, ofTexture *input3 = NULL)
         {
             dest.begin();
             shader.begin();
 
             if (name1)
-                shader.setUniformTexture(name1, input1->getTextureReference(), 
-                        input1->getTextureReference().getTextureData().textureID);
+                shader.setUniformTexture(name1, *input1, input1->getTextureData().textureID);
             if (name2)
-                shader.setUniformTexture(name2, input2->getTextureReference(), 
-                        input2->getTextureReference().getTextureData().textureID);
+                shader.setUniformTexture(name2, *input2, input2->getTextureData().textureID);
             if (name3)
-                shader.setUniformTexture(name3, input3->getTextureReference(), 
-                        input3->getTextureReference().getTextureData().textureID);
+                shader.setUniformTexture(name3, *input3, input3->getTextureData().textureID);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             drawQuad(ofVec2f(0, 0), ofVec2f(1024, 768), ofVec2f(1024, 768));
@@ -293,6 +301,7 @@ class Frame
             //debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
 
             debugDrawFBO(_combineFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            //debugDrawFBO(_gradFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
             //debugDrawFBO(_edgeFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
             //debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
         }

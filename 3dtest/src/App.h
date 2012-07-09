@@ -5,7 +5,6 @@
 #include <ofCamera.h>
 #include <ofLight.h>
 #include <ofFbo.h>
-#include <ofShader.h>
 #include <ofImage.h>
 #include <ofTrueTypeFont.h>
 
@@ -47,7 +46,7 @@ class App :
 
         void newFrame();
         void stepScene(float elapsed);
-        void drawScene(ofShader &shader);
+        void drawScene();
 
         void keyPressed(int key);
         void keyReleased(int key);

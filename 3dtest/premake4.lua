@@ -112,12 +112,6 @@ libdirs  {
     ofpath .. "/libs/tess2/lib/linux64"
 }
 
-links  { 
-    "openFrameworks", "kiss", "tess2", "PocoNet", "PocoXML", "PocoUtil", 
-    "PocoFoundation", "mpg123", "GLEW", "cairo", "glut", "GL", "openal", "sndfile", 
-    "freeimage", "GLU", "freetype"
-}
-
 -- Build options ----------------------------------------------------------------------------
 
 buildoptions "-pthread"
@@ -126,6 +120,11 @@ linkoptions "-pthread"
 -- Configurations ---------------------------------------------------------------------------
 
 configuration "Debug"
+    links { 
+        "openFrameworksDebug", "kiss", "tess2", "PocoNet", "PocoXML", "PocoUtil", 
+        "PocoFoundation", "mpg123", "GLEW", "cairo", "glut", "GL", "openal", "sndfile", 
+        "freeimage", "GLU", "freetype"
+    }
     flags { "Symbols" }
     defines { "DEBUG", "_DEBUG" }
     objdir "obj/debug"
@@ -133,6 +132,11 @@ configuration "Debug"
     targetsuffix "_d"
 
 configuration "Release"
+    links { 
+        "openFrameworks", "kiss", "tess2", "PocoNet", "PocoXML", "PocoUtil", 
+        "PocoFoundation", "mpg123", "GLEW", "cairo", "glut", "GL", "openal", "sndfile", 
+        "freeimage", "GLU", "freetype"
+    }
     objdir "obj/release"
     targetdir "bin"
 

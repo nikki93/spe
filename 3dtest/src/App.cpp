@@ -34,8 +34,8 @@ void App::setup()
     _timer = Settings::updateTime;
 
     // camera
-    _cam.setPosition(ofVec3f(100, 100, 100));
-    _cam.lookAt(ofVec3f(0, 0, 0));
+    _cam.setPosition(ofVec3f(80, 100, 80));
+    _cam.lookAt(ofVec3f(0, 35, 0));
 
     // light
     _light.enable();
@@ -54,18 +54,17 @@ void App::setup()
                     ofRandom(4, 14) // radius
                     ));
 
-    // model
-    ofDisableArbTex();
-    _tex.loadImage("models/ram/ram.jpg");
-
-    Model *m = new Model("data/models/ram/ram.obj", 1,
-            ofMatrix4x4::newScaleMatrix(50, 50, 50));
+    // models
     //Model *m = new Model("data/models/dolphin/dolphin_000001.obj", 1,
             //ofMatrix4x4::newScaleMatrix(20, 20, 20));
 
-    m->tex = &(_tex.getTextureReference());
-    m->pos = ofVec3f(0, 20, 0);
+    ofDisableArbTex();
 
+    Model *m = new Model("data/models/ram/ram.obj", 1,
+            ofMatrix4x4::newScaleMatrix(75, 75, 75));
+    _tex.loadImage("models/ram/ram.jpg");
+    m->tex = &(_tex.getTextureReference());
+    m->pos = ofVec3f(0, 10, 0);
     _models.push_back(m);
 }
 //--------------------------------------------------------------
@@ -93,7 +92,7 @@ void App::stepScene(float elapsed)
     ofVec3f camPos = _cam.getPosition();
     camPos.rotate(30 * elapsed, ofVec3f(0, 1, 0));
     _cam.setPosition(camPos);
-    _cam.lookAt(ofVec3f(0, 0, 0));
+    _cam.lookAt(ofVec3f(0, 35, 0));
 
     // balls
     for (std::vector<Ball *>::iterator i = _balls.begin();
@@ -112,10 +111,8 @@ void App::draw()
     ofSetColor(ofColor::black);
 }
 //--------------------------------------------------------------
-void App::drawScene(ofShader &shader)
+void App::drawScene()
 {
-    shader.begin();
-    //shader.setUniformTexture("diffuseMap", _tex.getTextureReference(), _tex.getTextureReference().getTextureData().textureID);
     _cam.begin();
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 
@@ -132,6 +129,7 @@ void App::drawScene(ofShader &shader)
     ofDrawAxis(20);
 
     // models, balls
+    ofSetColor(ofColor::blue);
     for (std::vector<Model *>::iterator i = _models.begin();
             i != _models.end(); ++i)
         (*i)->draw();
@@ -155,7 +153,6 @@ void App::drawScene(ofShader &shader)
 
     glPopAttrib();
     _cam.end();
-    shader.end();
 }
 //--------------------------------------------------------------
 void App::exit()

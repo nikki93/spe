@@ -15,6 +15,7 @@ class Settings
         static float brushLength;
         static float brushDensity;
         static float brushFuzziness;
+        static float blurSize;
 
         static ofVec2f brushDotRadius;
         static ofVec2f brushDotPosOscRange;
