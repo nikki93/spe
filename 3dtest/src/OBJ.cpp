@@ -28,12 +28,24 @@ namespace OBJ
         MeshVertex &read(const std::string &str, const std::vector<ofVec3f> &vertices,
                 const std::vector<ofVec3f> &normals, const std::vector<ofVec2f> &texcoords)
         {
+            const char *c = str.c_str();
             int vert, norm, tex;
-            sscanf(str.c_str(), "%d//%d", &vert, &norm);
 
-            v = vertices[vert - 1];
-            n = normals[norm - 1];
-            t = ofVec2f(0, 0);
+            if (sscanf(c, "%d//%d", &vert, &norm) == 2) // try weird one first
+            {
+                v = vertices[vert - 1];
+                t = ofVec2f(0, 0);
+                n = normals[norm - 1];
+            }
+            else
+            {
+                int p = sscanf(c, "%d/%d/%d", &vert, &tex, &norm);
+
+                // add whatever we could get
+                v = p > 0 ? vertices[vert - 1] : ofVec3f(0, 0, 0);
+                t = p > 1 ? texcoords[tex - 1] : ofVec2f(0, 0);
+                n = p > 2 ? normals[norm - 1] : ofVec3f(0, 0, 0);
+            }
 
             return *this;
         }
@@ -124,33 +136,24 @@ namespace OBJ
                 // make triangles from first vertex and every adjacent
                 // pair among other ones
 
-                ss >> w;
-                vert.read(w.c_str(), vertices, normals, texcoords);
-                std::pair<IndexMap::iterator, bool> ret
-                    = indices.insert(std::make_pair(vert, i));
-                if (ret.second)
-                    ++i;
-                size_t i0 = ret.first->second; // first
+                std::pair<IndexMap::iterator, bool> ret;
 
-                ss >> w;
-                vert.read(w.c_str(), vertices, normals, texcoords);
-                ret = indices.insert(std::make_pair(vert, i));
-                if (ret.second)
-                    ++i;
-                size_t i1 = ret.first->second; // pair vertex 1
+#define READ_VERT(ind) \
+        ss >> w; \
+        vert.read(w.c_str(), vertices, normals, texcoords); \
+        ret = indices.insert(std::make_pair(vert, i)); \
+        if (ret.second) \
+            ++i; \
+        size_t ind = ret.first->second;
+
+                READ_VERT(i0); // first vertex
+                READ_VERT(i1); // pair vertex 1
 
                 while (!ss.eof())
                 {
-                    ss >> w;
-                    vert.read(w.c_str(), vertices, normals, texcoords);
-                    ret = indices.insert(std::make_pair(vert, i));
-                    if (ret.second)
-                        ++i;
-                    size_t i2 = ret.first->second; // pair vertex 2
-
+                    READ_VERT(i2); // pair vertex 2
                     mesh.addTriangle(i0, i1, i2); // add triangle
-
-                    i1 = i2; // push pair vertex 2 to pair vertex 1
+                    i1 = i2; // next pair starts here
                 }
             }
         }
