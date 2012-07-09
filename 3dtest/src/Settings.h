@@ -10,7 +10,7 @@ class Settings
     public:
         static float brushStepTime;
         static float fieldMagnitude;
-        static int brushGridStep;
+        static float brushGridStep;
         static float brushRadius;
         static float brushLength;
         static float brushDensity;
@@ -21,6 +21,7 @@ class Settings
         static ofVec2f brushDotRadOscRange;
 
         static bool autoUpdate;
+        static float updateTime;
 };
 
 #endif

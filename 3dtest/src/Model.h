@@ -13,6 +13,7 @@ class Model
 
     public:
         ofVec3f pos;
+        ofTexture *tex;
 
         // filename of form "... %d ..." if animated for loading frames 1 to numFrames
         // numFrames == 1 means not animated
@@ -25,6 +26,7 @@ class Model
               _frame(0),
               pos(ofVec3f(0, 0, 0))
         {
+            // read mesh
             if (numFrames > 1)
             {
                 char *name = new char[filename.length() + 42];
@@ -47,6 +49,7 @@ class Model
 
         void update(float elapsed)
         {
+            // animation frames
             _frameTimer -= elapsed;
             if (_frameTimer < 0)
             {
@@ -59,7 +62,16 @@ class Model
         {
             ofPushMatrix();
                 ofTranslate(pos);
-                _meshes[_frame].draw();
+
+                // draw current frame
+                if (tex)
+                {
+                    tex->bind();
+                    _meshes[_frame].draw();
+                    tex->unbind();
+                }
+                else
+                    _meshes[_frame].draw();
             ofPopMatrix();
         }
 };

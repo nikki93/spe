@@ -137,8 +137,8 @@ class Frame
         {
             _sceneDepthFBO.readToPixels(_pix);
 
-            for (int i = 0; i < 1024; i += Settings::brushGridStep)
-                for (int j = 0; j < 768; j += Settings::brushGridStep)
+            for (int i = 0; i < 1024; i += (int) Settings::brushGridStep)
+                for (int j = 0; j < 768; j += (int) Settings::brushGridStep)
                 {
                     ofColor col = _pix.getColor(i, j);
                     if (col.a < 200)
@@ -208,11 +208,9 @@ class Frame
         void render(ofFbo &dest, ofShader &shader)
         {
             dest.begin(); 
-            shader.begin();
 
-            _app.drawScene();
+            _app.drawScene(shader);
 
-            shader.end();
             dest.end();
         }
         void pipe(ofFbo &dest, ofShader &shader, 
@@ -295,6 +293,8 @@ class Frame
             //debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
 
             debugDrawFBO(_combineFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            //debugDrawFBO(_edgeFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            //debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
         }
 };
 

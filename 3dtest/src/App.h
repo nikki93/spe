@@ -13,9 +13,9 @@
 #include "Model.h"
 #include "Brush.h"
 #include "Field.h"
-#include "GUI.h"
 
 class Frame;
+class GUI;
 
 class App : 
     public ofBaseApp
@@ -25,7 +25,7 @@ class App :
         ofCamera _cam;
         ofLight _light;
         std::vector<Ball *> _balls;
-        Model *_model;
+        std::vector<Model *> _models;
 
         // rendering
         Frame *_frame;
@@ -37,6 +37,7 @@ class App :
         GUI *_gui;
 
     public:
+        ofImage _tex;
         App();
 
         void setup();
@@ -46,7 +47,7 @@ class App :
 
         void newFrame();
         void stepScene(float elapsed);
-        void drawScene();
+        void drawScene(ofShader &shader);
 
         void keyPressed(int key);
         void keyReleased(int key);

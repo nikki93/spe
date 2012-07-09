@@ -25,6 +25,7 @@ namespace OBJ
         {
         }
 
+        // read in vertex data from OBJ face string and index->data maps
         MeshVertex &read(const std::string &str, const std::vector<ofVec3f> &vertices,
                 const std::vector<ofVec3f> &normals, const std::vector<ofVec2f> &texcoords)
         {
