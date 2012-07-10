@@ -35,7 +35,7 @@ void App::setup()
 
     // camera
     _cam.setPosition(ofVec3f(80, 100, 80));
-    _cam.lookAt(ofVec3f(0, 35, 0));
+    _cam.lookAt(ofVec3f(0, 50, 0));
 
     // light
     _light.enable();
@@ -92,7 +92,7 @@ void App::stepScene(float elapsed)
     ofVec3f camPos = _cam.getPosition();
     camPos.rotate(30 * elapsed, ofVec3f(0, 1, 0));
     _cam.setPosition(camPos);
-    _cam.lookAt(ofVec3f(0, 35, 0));
+    _cam.lookAt(ofVec3f(0, 50, 0));
 
     // balls
     for (std::vector<Ball *>::iterator i = _balls.begin();

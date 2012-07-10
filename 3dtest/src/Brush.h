@@ -43,7 +43,7 @@ class Brush
 
     public:
         Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist = 100, 
-                float density = 0.1, float fuzziness = 5)
+                float density = 0.1, float fuzziness = 5, float grain = 0.4)
             : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
         {
             // scale density by area
@@ -52,7 +52,7 @@ class Brush
 
             while (count--)
                 _dots.push_back(Dot(ofVec2f(ofRandom(-radius, radius), ofRandom(-radius, radius)),
-                            color * (1.0 + ofRandom(-0.4, 0.4)),
+                            color * (1.0 + ofRandom(-grain, grain)),
                             ofRandom(BRUSH_DOT_RADIUS),
                             ofRandom(1, fuzziness)));
         }

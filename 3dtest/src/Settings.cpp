@@ -9,6 +9,7 @@ float  Settings::brushRadius = 5;
 float  Settings::brushLength = 60;
 float  Settings::brushDensity = 0.3;
 float  Settings::brushFuzziness = 7;
+float  Settings::brushGrain = 0.4;
 float  Settings::blurSize = 5;
 
 ofVec2f  Settings::brushDotRadius = ofVec2f(0.1, 1.2);

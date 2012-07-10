@@ -40,6 +40,7 @@ class GUI
             addSlider("Brush length", &Settings::brushLength, 5, 200, 60);
             addSlider("Brush hair density", &Settings::brushDensity, 0.01, 1, 0.3);
             addSlider("Brush hair fuzziness", &Settings::brushFuzziness, 0, 15, 7);
+            addSlider("Brush hair grain", &Settings::brushGrain, 0, 2, 0.4);
 
             // frame update
             _canvas.addWidgetDown(new ofxUILabelToggle(134, false, "Auto update", OFX_UI_FONT_SMALL, 20));

@@ -90,7 +90,7 @@ class Frame
             _combineShader.load("basicvert.vert", "combine.frag");
 
             // load canvas texture
-            _canvas.loadImage("canvas/canvas3.png");
+            _canvas.loadImage("canvas/canvas2.png");
         }
 
         // start a new animation frame
@@ -153,7 +153,8 @@ class Frame
                     if (col.a < 200)
                         _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
                                     col, Settings::brushRadius, Settings::brushLength, 
-                                    Settings::brushDensity, Settings::brushFuzziness));
+                                    Settings::brushDensity, Settings::brushFuzziness,
+                                    Settings::brushGrain));
                 }
         }
 
