@@ -18,3 +18,4 @@ ofVec2f  Settings::brushDotRadOscRange = ofVec2f(-0.04, 0.015);
 
 bool Settings::autoUpdate = false;
 float Settings::updateTime = 150;
+

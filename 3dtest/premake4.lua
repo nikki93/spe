@@ -29,6 +29,7 @@ includedirs {
     "./src",
 
     -- libs
+    "./src/mtrand",
     "./src/ofxUI",
     "./src/ofxXmlSettings",
 

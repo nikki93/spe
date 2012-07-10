@@ -5,6 +5,8 @@
 #include "ofVec3f.h"
 #include "ofGraphics.h"
 
+#include "Random.h"
+
 #define BRUSH_DOT_RADIUS 0.1, 1.2
 #define BRUSH_POS_OSC_RANGE -1.6, 0.7
 #define BRUSH_RADIUS_OSC_RANGE -0.04, 0.015
@@ -41,20 +43,23 @@ class Brush
         float _currDist;
         float _totalDist;
 
+        Random _rand;
+
     public:
         Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist = 100, 
                 float density = 0.1, float fuzziness = 5, float grain = 0.4)
-            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0)
+            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0),
+              _rand(pos.x + pos.y)
         {
             // scale density by area
             int count = density * radius*radius;
             color.a = 255;
 
             while (count--)
-                _dots.push_back(Dot(ofVec2f(ofRandom(-radius, radius), ofRandom(-radius, radius)),
-                            color * (1.0 + ofRandom(-grain, grain)),
-                            ofRandom(BRUSH_DOT_RADIUS),
-                            ofRandom(1, fuzziness)));
+                _dots.push_back(Dot(ofVec2f(_rand(-radius, radius), _rand(-radius, radius)),
+                            color * (1.0 + _rand(-grain, grain)),
+                            _rand(BRUSH_DOT_RADIUS),
+                            _rand(1, fuzziness)));
         }
 
         ofVec2f getPosition()
@@ -93,19 +98,19 @@ class Brush
 
                 // oscillate dot radius, position
                 if (d->radius >= d->baseRadius)
-                    d->radius += ofRandom(BRUSH_RADIUS_OSC_RANGE);
+                    d->radius += _rand(BRUSH_RADIUS_OSC_RANGE);
                 else
-                    d->radius -= ofRandom(BRUSH_RADIUS_OSC_RANGE);
+                    d->radius -= _rand(BRUSH_RADIUS_OSC_RANGE);
 
                 if (d->pos.x >= d->basePos.x)
-                    d->pos.x += ofRandom(BRUSH_POS_OSC_RANGE);
+                    d->pos.x += _rand(BRUSH_POS_OSC_RANGE);
                 else
-                    d->pos.x -= ofRandom(BRUSH_POS_OSC_RANGE);
+                    d->pos.x -= _rand(BRUSH_POS_OSC_RANGE);
 
                 if (d->pos.y >= d->basePos.y)
-                    d->pos.y += ofRandom(BRUSH_POS_OSC_RANGE);
+                    d->pos.y += _rand(BRUSH_POS_OSC_RANGE);
                 else
-                    d->pos.y -= ofRandom(BRUSH_POS_OSC_RANGE);
+                    d->pos.y -= _rand(BRUSH_POS_OSC_RANGE);
             }
         }
 };
