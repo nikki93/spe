@@ -31,7 +31,8 @@ void App::setup()
 
     // renderer setup
     _frame = new Frame(*this);
-    _timer = Settings::updateTime;
+    _timer = 0.5;
+    _timerSet = true;
 
     // camera
     _cam.setPosition(ofVec3f(80, 100, 80));
@@ -73,19 +74,25 @@ void App::setup()
 //--------------------------------------------------------------
 void App::update()
 {
-    if (Settings::autoUpdate && _timer <= 0)
-        newFrame();
+    if (_timer <= 0)
+    {
+        if (Settings::autoUpdate)
+            newFrame();
+    }
+    else if (_timerSet)
+        _timer -= ofGetLastFrameTime();
     else
     {
         // brush rendering
-        _frame->moveBrushes();
+        bool more = _frame->moveBrushes();
         _frame->drawBrushes();
         _frame->combineFrame();
 
-        if (Settings::autoUpdate)
-            --_timer;
-        else
-            _timer = -1;
+        if (!more)
+        {
+            _timer = Settings::updateTime;
+            _timerSet = true;
+        }
     }
 }
 //--------------------------------------------------------------
@@ -189,6 +196,7 @@ void App::newFrame()
 
     stepScene(0.03);
 
+    _timerSet = false;
     _timer = Settings::updateTime;
 }
 //--------------------------------------------------------------

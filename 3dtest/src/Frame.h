@@ -6,6 +6,7 @@
 
 #include "Field.h"
 #include "Settings.h"
+#include "BrushStyler.h"
 
 // handles drawing of a single frames of animation
 
@@ -30,6 +31,7 @@ class Frame
         Field _field; // field to apply to brushes, changes per-frame
 
         ofPixels _pix; // temporary space for pixel data
+        ofPixels _pix2;
 
         ofShader _flipShader;
 
@@ -59,17 +61,18 @@ class Frame
         ofImage _canvas;
         ofImage _fileImg;
 
-        typedef std::vector<Brush *> BrushList;
-        BrushList _brushes;
-
         App &_app;
+
+        BrushStyler *_brushes;
 
     public:
         Frame(App &app)
             : _field(1024, 768),
-              _app(app)
+              _app(app),
+              _brushes(0)
         {
             _pix.allocate(1024, 768, OF_IMAGE_COLOR);
+            _pix2.allocate(1024, 768, OF_IMAGE_COLOR);
             _fileImg.allocate(1024, 768, OF_IMAGE_COLOR);
 
             // allocate FBOs
@@ -150,67 +153,48 @@ class Frame
         // create brushes based on _sceneDepthFBO
         void createBrushes()
         {
-            _sceneDepthFBO.readToPixels(_pix);
+            if (_brushes)
+                delete _brushes;
 
-            int n = 0;
-            for (int i = 0; i < 1024; i += (int) Settings::brushGridStep)
-                for (int j = 0; j < 768; j += (int) Settings::brushGridStep)
-                {
-                    ofColor col = _pix.getColor(i, j);
-                    if (col.a < 200)
-                        _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
-                                    col, Settings::brushRadius, n++,
-                                    Settings::brushLength, Settings::brushDensity, 
-                                    Settings::brushFuzziness, Settings::brushGrain));
-                }
+            _sceneDepthFBO.readToPixels(_pix);
+            _edgeFBO.readToPixels(_pix2);
+            _brushes = new BrushStyler(_pix, _pix2, _field);
+            _brushes->generate();
         }
 
         // move all brushes based on _field
-        void moveBrushes()
+        bool moveBrushes()
         {
-            for (BrushList::iterator iter = _brushes.begin();
-                    iter != _brushes.end(); )
-            {
-                Brush *brush = *iter;
-                ofVec2f pos = brush->getPosition();
-                int i = ofClamp(pos.x, 0, 1023);
-                int j = ofClamp(pos.y, 0, 767);
-
-                if (!brush->move(_field.get(i, j), Settings::brushStepTime))
-                {
-                    delete brush;
-                    iter = _brushes.erase(iter);
-                }
-                else
-                    ++iter;
-            }
+            if (_brushes)
+                return _brushes->move();
+            return false;
         }
 
         // draw brushes to _paintFBO
         void drawBrushes()
         {
-            _paintFBO.begin();
-            glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
+            if (_brushes)
+            {
+                _paintFBO.begin();
+                glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT);
 
-            glDisable(GL_DEPTH_TEST);
-            ofDisableLighting();
-            ofEnableAlphaBlending();
+                glDisable(GL_DEPTH_TEST);
+                ofDisableLighting();
+                ofEnableAlphaBlending();
 
-            for (BrushList::iterator iter = _brushes.begin();
-                    iter != _brushes.end(); ++iter)
-                (*iter)->draw();
+                _brushes->draw();
 
-            glPopAttrib();
-            _paintFBO.end();
+                glPopAttrib();
+                _paintFBO.end();
+            }
         }
 
         // remove all brushes
         void destroyBrushes()
         {
-            for (BrushList::iterator iter = _brushes.begin();
-                    iter != _brushes.end(); ++iter)
-                delete *iter;
-            _brushes.clear();
+            if (_brushes)
+                delete _brushes;
+            _brushes = 0;
         }
 
         // write combined result to file

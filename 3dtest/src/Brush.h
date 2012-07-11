@@ -54,11 +54,15 @@ class Brush
             int count = density * radius*radius;
             color.a = 255;
 
+            float angle;
             while (count--)
-                _dots.push_back(Dot(ofVec2f(_rand(-radius, radius), _rand(-radius, radius)),
+            {
+                angle = _rand(0, 2*PI);
+                _dots.push_back(Dot(_rand(0, radius)*ofVec2f(cos(angle), sin(angle)),
                             color * (1.0 + _rand(-grain, grain)),
                             _rand(BRUSH_DOT_RADIUS),
                             _rand(1, fuzziness)));
+            }
         }
 
         ofVec2f getPosition()

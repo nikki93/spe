@@ -23,12 +23,13 @@ class BrushStyler {
         bool containsEdge(int x, int y, float threshold, float target);
 
     public:
-        BrushStyler(ofImage &img, ofImage &edges, Field &field);
+        BrushStyler(ofPixels &img, ofPixels &edges, Field &field);
+        ~BrushStyler() { clear(); }
 
-        void styleBrushes();
-        void deleteBrushes();
-        void drawBrushes();
-        bool moveBrushes();
+        void generate();
+        void clear();
+        void draw();
+        bool move();
 };
 
 #endif

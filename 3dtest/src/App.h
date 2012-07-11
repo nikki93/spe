@@ -29,8 +29,7 @@ class App :
 
         // rendering
         Frame *_frame;
-
-        // frame timer
+        bool _timerSet;
         int _timer;
 
         // gui

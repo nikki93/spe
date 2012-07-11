@@ -45,7 +45,7 @@ class GUI
             // frame update
             _canvas.addWidgetDown(new ofxUILabelToggle(134, false, "Auto update", OFX_UI_FONT_SMALL, 20));
             _canvas.addWidgetRight(new ofxUILabelButton(134, false, "Next frame", OFX_UI_FONT_SMALL, 20));
-            addSlider("Auto update iterations", &Settings::updateTime, 0, 500, 150);
+            addSlider("Auto update timer", &Settings::updateTime, 0, 10, 1);
            
             // reload
             _canvas.loadSettings("settings.xml");
