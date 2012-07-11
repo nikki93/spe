@@ -56,14 +56,18 @@ class Brush
             // scale density by area
             int count = density * radius*radius;
 
-            while (count--)
-                _dots.push_back(Dot(ofVec2f(ofRandom(-radius, radius), ofRandom(-radius, radius)),
+            float angle;
+            while (count--) {
+                angle = ofRandom(0, 2 * PI);
+
+                _dots.push_back(Dot(ofRandom(0, radius) * ofVec2f(cos(angle), sin(angle)),
                             color * (1.0 + ofRandom(-0.2, 0.2)),
                             //ofColor::fromHsb(ofRandom(0, 255),
                                 //ofRandom(200, 255),
                                 //ofRandom(128, 190)),
                             ofRandom(0.4 * dotRadius, 1.6 * dotRadius),
                             ofRandom(1, fuzziness)));
+            }
 		}
 
         ofVec2f getPosition()
@@ -79,7 +83,7 @@ class Brush
             float dispLen = disp.length();
 
             _currDist += dispLen;
-            if (_currDist >= _totalDist)
+            if (_currDist >= _totalDist) /**/
                 return false;
 
             _pos += disp;
@@ -87,7 +91,7 @@ class Brush
             float alphaDisp = dispLen/_totalDist*255;
             for (DotList::iterator d = _dots.begin();
                     d != _dots.end(); ++d)
-                d->color.a = ofClamp(d->color.a - (d->dieSpeed * alphaDisp), 0, 255);
+                d->color.a =  ofClamp(d->color.a - (d->dieSpeed * alphaDisp), 0, 255);
 
             return true;
         }
