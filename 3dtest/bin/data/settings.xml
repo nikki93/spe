@@ -16,12 +16,12 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Brush grid step</Name>
-    <Value>8.174999</Value>
+    <Value>9.400001</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Brush length</Name>
-    <Value>83.000000</Value>
+    <Value>63.500004</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -36,7 +36,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Brush hair grain</Name>
-    <Value>0.135714</Value>
+    <Value>0.042857</Value>
 </Widget>
 <Widget>
     <Kind>17</Kind>
@@ -46,5 +46,5 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Auto update iterations</Name>
-    <Value>267.857147</Value>
+    <Value>260.714294</Value>
 </Widget>

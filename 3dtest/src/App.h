@@ -25,6 +25,7 @@ class App :
         ofLight _light;
         std::vector<Ball *> _balls;
         std::vector<Model *> _models;
+        ofImage _floorTex;
 
         // rendering
         Frame *_frame;

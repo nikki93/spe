@@ -66,6 +66,9 @@ void App::setup()
     m->tex = &(_tex.getTextureReference());
     m->pos = ofVec3f(0, 10, 0);
     _models.push_back(m);
+
+    // floor
+    _floorTex.loadImage("floor.jpg");
 }
 //--------------------------------------------------------------
 void App::update()
@@ -124,12 +127,13 @@ void App::drawScene()
     ofBackground(ofColor::white);
 
     // axis
+    /*
     ofSetColor(ofColor::gray);
     ofSphere(2);
     ofDrawAxis(20);
+    */
 
     // models, balls
-    ofSetColor(ofColor::blue);
     for (std::vector<Model *>::iterator i = _models.begin();
             i != _models.end(); ++i)
         (*i)->draw();
@@ -139,17 +143,16 @@ void App::drawScene()
         (*i)->draw();
 
     // floor
-    ofSetColor(ofColor::fromHex(0xd8baba));
+    /*
+    _floorTex.getTextureReference().bind();
     glBegin(GL_QUADS);
-    glNormal3f(0, 1, 0);
-    glVertex3f(100, 0, 100);
-    glNormal3f(0, 1, 0);
-    glVertex3f(100, 0, -100);
-    glNormal3f(0, 1, 0);
-    glVertex3f(-100, 0, -100);
-    glNormal3f(0, 1, 0);
-    glVertex3f(-100, 0, 100);
+        glTexCoord2f(1, 1); glNormal3f(0, 1, 0); glVertex3f( 100, 0,  100);
+        glTexCoord2f(1, 0); glNormal3f(0, 1, 0); glVertex3f( 100, 0, -100);
+        glTexCoord2f(0, 0); glNormal3f(0, 1, 0); glVertex3f(-100, 0, -100);
+        glTexCoord2f(0, 1); glNormal3f(0, 1, 0); glVertex3f(-100, 0,  100);
     glEnd();
+    _floorTex.getTextureReference().unbind();
+    */
 
     glPopAttrib();
     _cam.end();

@@ -46,10 +46,9 @@ class Brush
         Random _rand;
 
     public:
-        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, float dist = 100, 
-                float density = 0.1, float fuzziness = 5, float grain = 0.4)
-            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0),
-              _rand(pos.x + pos.y)
+        Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, int seed = ofRandom(7749),
+                float dist = 100, float density = 0.1, float fuzziness = 5, float grain = 0.4)
+            : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0), _rand(seed)
         {
             // scale density by area
             int count = density * radius*radius;

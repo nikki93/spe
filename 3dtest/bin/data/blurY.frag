@@ -18,6 +18,6 @@ vec4 blurY(sampler2DRect tex, vec2 pos, float incr)
 void main()
 {
     vec2 pos = gl_TexCoord[0].st;
-    gl_FragColor = blurY(input, pos, 2.8);
+    gl_FragColor = blurY(input, pos, 1);
 }
 

@@ -39,6 +39,9 @@ class Frame
         ofFbo _normDepthFBO;
         ofShader _normDepthShader;
 
+        ofFbo _shadeDepthFBO;
+        ofShader _shadeDepthShader;
+
         ofFbo _edgeFBO;
         ofShader _edgeShader;
 
@@ -72,6 +75,7 @@ class Frame
             // allocate FBOs
             _sceneDepthFBO.allocate(1024, 768, GL_RGBA);
             _normDepthFBO.allocate(1024, 768, GL_RGBA);
+            _shadeDepthFBO.allocate(1024, 768, GL_RGBA);
             _edgeFBO.allocate(1024, 768, GL_RGBA);
             _blurXFBO.allocate(1024, 768, GL_RGBA);
             _blurXYFBO.allocate(1024, 768, GL_RGBA);
@@ -82,6 +86,7 @@ class Frame
             // load shaders
             _flipShader.load("basicvert.vert", "flip.frag");
             _sceneDepthShader.load("scenedepth");
+            _shadeDepthShader.load("shadedepth");
             _normDepthShader.load("normdepth");
             _edgeShader.load("basicvert.vert", "edge.frag");
             _blurXShader.load("basicvert.vert", "blurX.frag");
@@ -96,17 +101,18 @@ class Frame
         // start a new animation frame
         void newFrame()
         {
-            // first render scene to scene+depth and normals+depth FBOs
+            // first render scene to scene+depth, normals+depth and shade+depth FBOs
             render(_sceneDepthFBO, _sceneDepthShader);
             render(_normDepthFBO, _normDepthShader);
+            render(_shadeDepthFBO, _shadeDepthShader);
 
             // normdepth --(edge)--> edge
             pipe(_edgeFBO, _edgeShader, "input", &_normDepthFBO.getTextureReference());
 
             // normdepth --(blur)--(grad)--> grad
-            _blurXShader.setUniform1f("blurSize", 5.0);
-            _blurYShader.setUniform1f("blurSize", 5.0);
-            pipe(_blurXFBO, _blurXShader, "input", &_sceneDepthFBO.getTextureReference());
+            //_blurXShader.setUniform1f("blurSize", 5.0);
+            //_blurYShader.setUniform1f("blurSize", 5.0);
+            pipe(_blurXFBO, _blurXShader, "input", &_shadeDepthFBO.getTextureReference());
             pipe(_blurXYFBO, _blurYShader, "input", &_blurXFBO.getTextureReference());
             pipe(_gradFBO, _gradShader, "input", &_blurXYFBO.getTextureReference());
 
@@ -146,15 +152,16 @@ class Frame
         {
             _sceneDepthFBO.readToPixels(_pix);
 
+            int n = 0;
             for (int i = 0; i < 1024; i += (int) Settings::brushGridStep)
                 for (int j = 0; j < 768; j += (int) Settings::brushGridStep)
                 {
                     ofColor col = _pix.getColor(i, j);
                     if (col.a < 200)
                         _brushes.push_back(new Brush(ofVec2f(i, j), ofVec2f(0, 0), 
-                                    col, Settings::brushRadius, Settings::brushLength, 
-                                    Settings::brushDensity, Settings::brushFuzziness,
-                                    Settings::brushGrain));
+                                    col, Settings::brushRadius, n++,
+                                    Settings::brushLength, Settings::brushDensity, 
+                                    Settings::brushFuzziness, Settings::brushGrain));
                 }
         }
 
@@ -302,6 +309,8 @@ class Frame
             //debugDrawFBO(_combineFBO, ofVec2f(512, 384), ofVec2f(512, 384));
 
             debugDrawFBO(_combineFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            //debugDrawFBO(_paintFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
+            //debugDrawFBO(_blurXYFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
             //debugDrawFBO(_gradFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
             //debugDrawFBO(_edgeFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
             //debugDrawFBO(_sceneDepthFBO, ofVec2f(0, 0), ofVec2f(1024, 768));
