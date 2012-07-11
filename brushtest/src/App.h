@@ -7,21 +7,18 @@
 #include "Brush.h"
 #include "Field.h"
 #include "Palette.h"
+#include "BrushStyler.h"
 class App : 
     public ofBaseApp
 {
     protected:
         Field _forceField;
         ofImage _potential;
-        ofImage _edges; // temp
-
-        typedef std::vector<Brush *> BrushList;
-        std::vector<BrushList> _brushes;
-        int _brushInd; 
 
         ofImage _color;
-        float _maxRad;
-        float _minRad;
+        ofImage _edges;
+
+        BrushStyler *_styler;
 
 Palette *_palette;
         
