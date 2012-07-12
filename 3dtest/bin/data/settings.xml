@@ -1,7 +1,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Brush step time</Name>
-    <Value>0.005000</Value>
+    <Value>0.005013</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -36,15 +36,15 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Brush hair grain</Name>
-    <Value>0.021429</Value>
+    <Value>0.007143</Value>
 </Widget>
 <Widget>
     <Kind>17</Kind>
     <Name>Auto update</Name>
-    <Value>1</Value>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Auto update timer</Name>
-    <Value>1.000000</Value>
+    <Value>3.642857</Value>
 </Widget>

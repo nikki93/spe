@@ -7,7 +7,6 @@
 
 #include "Random.h"
 
-#define BRUSH_DOT_RADIUS 0.1, 1.2
 #define BRUSH_POS_OSC_RANGE -1.6, 0.7
 #define BRUSH_RADIUS_OSC_RANGE -0.04, 0.015
 
@@ -47,20 +46,20 @@ class Brush
 
     public:
         Brush(const ofVec2f &pos, const ofVec2f &vel, ofColor color, float radius, int seed = ofRandom(7749),
-                float dist = 100, float density = 0.1, float fuzziness = 5, float grain = 0.4)
+                float dist = 100, float density = 0.1, float fuzziness = 5, float grain = 0.4, 
+                const ofVec2f &dotRad = ofVec2f(0.1, 1.2))
             : _pos(pos), _vel(vel), _totalDist(dist), _currDist(0), _rand(seed)
         {
-            // scale density by area
-            int count = density * radius*radius;
-            color.a = 255;
+            color.a = 255; // always start opaque
 
             float angle;
+            int count = density * radius*radius;
             while (count--)
             {
                 angle = _rand(0, 2*PI);
                 _dots.push_back(Dot(_rand(0, radius)*ofVec2f(cos(angle), sin(angle)),
                             color * (1.0 + _rand(-grain, grain)),
-                            _rand(BRUSH_DOT_RADIUS),
+                            _rand(dotRad.x, dotRad.y),
                             _rand(1, fuzziness)));
             }
         }

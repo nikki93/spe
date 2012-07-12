@@ -56,6 +56,19 @@ void BrushStyler::clear() {
 }
 
 void BrushStyler::draw() {
+    /*
+    int total = _brushes.size();
+    ofColor start(0xff0000), end(0x0000ff);
+    for (int i = 0; i < total; ++i)
+        for (BrushList::iterator j = _brushes[i].begin();
+                j != _brushes[i].end(); ++j)
+        {
+            ofSetColor(start.getLerped(end, ((float) i) / total));
+            ofCircle((*j)->getPosition(), 1);
+        }
+    return;
+    */
+
     if (_brushInd >= 0 && _brushInd < _brushes.size())
         for (BrushList::iterator i = _brushes[_brushInd].begin();
                 i != _brushes[_brushInd].end(); ++i)
@@ -63,6 +76,7 @@ void BrushStyler::draw() {
 }
 
 bool BrushStyler::move() {
+    //return true;
     bool allDead = true;
 
     // move brushes by force field, remove brush if done
@@ -126,32 +140,24 @@ void BrushStyler::generate() {
         for (int x = 0; x < 1024; x++)
             filled[y][x] = false;
 
-    // coarse layer
-    /*int coarseRad = maxRad * 1.2;
-      gridStep = coarseRad * interceptability;
-      for (int y = 0; y < 768; y += gridStep) {
-      for (int x = 0; x < 1024; x += gridStep) {
-      brushes[0].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
-      _palette.getClosest(_img.getColor(x, y)), 
-      coarseRad, density, dist * 2, fuzziness));
-      }
-      }*/
-
     // normal layers
     float target;
     int i;
     float curr = maxRad;
+    ofColor col;
     for (i = 0; i < levels; i++) {
         target = curr * 0.6; // MULTIPLIER!!! put in GUI
         gridStep = curr * interceptability;
         for (int y = 0; y < 768; ++y)
             for (int x = 0; x < 1024; ++x)
-                if (!filled[y][x] && !containsEdge(x, y, threshold, target)) {
+                if (!filled[y][x] 
+                        && (col = _img.getColor(x, y)).a < 200
+                        && !containsEdge(x, y, threshold, target)) {
                     _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                                 //_palette.getClosest(_img.getColor(x, y)), 
-                                _img.getColor(x, y), curr, seed++,
+                                col, curr, seed++,
                                 Settings::brushLength, 
-                                0.1 + (((float) i)/levels)*(Settings::brushDensity - 0.1), 
+                                0.08 + (((float) i)/levels)*(Settings::brushDensity - 0.08), 
                                 Settings::brushFuzziness, Settings::brushGrain));
 
                     // update filledness
@@ -166,30 +172,29 @@ void BrushStyler::generate() {
         curr *= 0.7;
     }
 
-    // coarse
-    /*
-    gridStep = maxRad * interceptability;
-    for (int y = 0; y < 768; y += gridStep)
-        for (int x = 0; x < 1024; x += gridStep) {
-            if (!filled[y][x])
-                _brushes[0].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
-                            //_palette.getClosest(_img.getColor(x, y)), 
-                            _img.getColor(x, y), maxRad, seed++,
-                            2*Settings::brushLength, Settings::brushDensity, 
-                            Settings::brushFuzziness, Settings::brushGrain));
-        }
-        */
-
     // fine
-    gridStep = std::max(1, (int)(minRad * interceptability));
-    for (int y = 0; y < 768; y += gridStep)
-        for (int x = 0; x < 1024; x += gridStep)
-            if (_edges.getColor(x, y).r <= threshold)
+    for (int y = 0; y < 768; y++)
+        for (int x = 0; x < 1024; x++)
+            filled[y][x] = false;
+    for (int y = 0; y < 768; ++y)
+        for (int x = 0; x < 1024; ++x)
+            if (!filled[y][x] && _edges.getColor(x, y).r <= threshold)
+            {
                 _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                             //_palette.getClosest(_img.getColor(x, y)), 
-                            _img.getColor(x, y), 
+            /* darker */    ofColor(100, 100, 100, 1)*_img.getColor(x, y), 
                             minRad, seed++,
-                            1.2*Settings::brushLength, 
+                            Settings::brushLength, 
                             0.1 + 1/(minRad*minRad),
-                            0.5*Settings::brushFuzziness, Settings::brushGrain));
+                            Settings::brushFuzziness, Settings::brushGrain,
+            /* smaller */   ofVec2f(0.1, 0.8)));
+
+                int tmp = std::min((int)(y + 3*minRad), 767);
+                int tmp2;
+                for (int m = std::max((int)(y - 3*minRad), 0); m <= tmp; m++) {
+                    tmp2 = std::min((int)(x + 3*minRad), 1023);
+                    for (int n = std::max((int)(x - 3*minRad), 0); n <= tmp2; n++)
+                        filled[m][n] = true;
+                }
+            }
 }
