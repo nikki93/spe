@@ -3,8 +3,7 @@
 #include "Palette.h"
 #include "median_cut.h"
 
-/*
-Palette::Palette(ofImage &img, int paletteSize) {
+Palette::Palette(ofPixels &img, int paletteSize) {
     // make XYZ image
     int n = img.getWidth() * img.getHeight();
 
@@ -12,33 +11,10 @@ Palette::Palette(ofImage &img, int paletteSize) {
     ColorXYZ *imgXYZ = new ColorXYZ[n];
 
     for (int i = 0; i < n; ++i)
-        imgXYZ[i].setRgb(imgRGB[i], imgRGB[i + 1], imgRGB[i + 2]);
+        imgXYZ[i].setRgb(imgRGB[4*i], imgRGB[4*i + 1], imgRGB[4*i + 2]);
 
     // do the median cut
     _colors = medianCut(imgXYZ, n, paletteSize);
-}
-*/
-
-Palette::Palette(ofImage &img, int paletteSize) {
-    // make XYZ image
-    int n = img.getWidth() * img.getHeight();
-
-    unsigned char *pix = img.getPixels();
-    ofColor *imgRGB = new ofColor[n];
-
-    for (int i = 0; i < n; ++i)
-        imgRGB[i].set(pix[i], pix[i + 1], pix[i + 2]);
-
-    _colors = medianCut((Color *) imgRGB, n, paletteSize);
-
-    /*
-    std::vector<ofColor> rgbs = medianCut((Color *) imgRGB, n, paletteSize);
-    _colors.clear();
-
-    for (std::vector<ofColor>::iterator i = rgbs.begin();
-            i != rgbs.end(); ++i)
-        _colors.push_back(ColorXYZ(*i));
-    */
 }
 
 void ColorXYZ::setRgb(unsigned char R, unsigned char G, unsigned char B) {

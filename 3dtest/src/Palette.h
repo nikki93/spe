@@ -37,16 +37,16 @@ inline float dist(const ofColor &a, const ofColor &b)
 }
 
 class Palette {
-    typedef std::vector<ofColor> ColorList;
+    typedef std::vector<ColorXYZ> ColorList;
     ColorList _colors;
 
     public:
-        Palette(ofImage &img, int numColors);
+        Palette(ofPixels &img, int numColors);
 
         ofColor getColor(size_t i)
         {
             if (i < _colors.size())
-                return _colors[i];
+                return _colors[i].getRgb();
             else
                 return ofColor::black;
         }
@@ -73,17 +73,17 @@ class Palette {
         ofColor getClosest(const ofColor &col)
         {
             float minDist = std::numeric_limits<float>::max(), currDist;
-            ofColor closest(0, 0, 0);
+            ColorXYZ xyz(col), closest(0, 0, 0);
 
             for (ColorList::iterator i = _colors.begin();
                     i != _colors.end(); ++i)
-                if ((currDist = dist(*i, col)) < minDist)
+                if ((currDist = xyz.dist(*i)) < minDist)
                 {
                     closest = *i;
                     minDist = currDist;
                 }
 
-            return closest;
+            return closest.getRgb();
         }
 };
 

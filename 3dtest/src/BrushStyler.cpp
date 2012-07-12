@@ -1,6 +1,7 @@
 #include "BrushStyler.h"
 
 #include "Settings.h"
+#include "Palette.h"
 
 bool BrushStyler::containsEdge(int x, int y, float threshold, float target) {
     int lower, upper;
@@ -125,6 +126,7 @@ void BrushStyler::generate() {
 
     int seed = 0; // random seed, fix later
 
+    // draw largest brush first
     _brushInd = 0;
 
     // get brush step
@@ -139,6 +141,9 @@ void BrushStyler::generate() {
     for (int y = 0; y < 768; y++)
         for (int x = 0; x < 1024; x++)
             filled[y][x] = false;
+
+    // generate palette
+    Palette palette(_img, 42);
 
     // normal layers
     float target;
@@ -155,7 +160,7 @@ void BrushStyler::generate() {
                         && !containsEdge(x, y, threshold, target)) {
                     _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                                 //_palette.getClosest(_img.getColor(x, y)), 
-                                col, curr, seed++,
+                                palette.getClosest(col), curr, seed++,
                                 Settings::brushLength, 
                                 0.08 + (((float) i)/levels)*(Settings::brushDensity - 0.08), 
                                 Settings::brushFuzziness, Settings::brushGrain));
@@ -182,7 +187,7 @@ void BrushStyler::generate() {
             {
                 _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                             //_palette.getClosest(_img.getColor(x, y)), 
-            /* darker */    ofColor(100, 100, 100, 1)*_img.getColor(x, y), 
+            /* darker */    ofColor(100, 100, 100, 1)*palette.getClosest(_img.getColor(x, y)), 
                             minRad, seed++,
                             Settings::brushLength, 
                             0.1 + 1/(minRad*minRad),

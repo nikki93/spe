@@ -3,7 +3,6 @@
 
 #include "ofImage.h"
 #include "Brush.h"
-#include "Palette.h"
 #include "Field.h"
 
 class BrushStyler {

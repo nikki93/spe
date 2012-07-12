@@ -31,8 +31,8 @@ Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus
 
 #include "Palette.h"
 
-typedef ofColor Color;
-typedef unsigned char ColorElement;
+typedef ColorXYZ Color;
+typedef float ColorElement;
 
 class Block
 {
