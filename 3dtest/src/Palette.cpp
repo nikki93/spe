@@ -3,21 +3,7 @@
 #include "Palette.h"
 #include "median_cut.h"
 
-Palette::Palette(ofPixels &img, int paletteSize) {
-    // make XYZ image
-    int n = img.getWidth() * img.getHeight();
-
-    unsigned char *imgRGB = img.getPixels();
-    ColorXYZ *imgXYZ = new ColorXYZ[n];
-
-    for (int i = 0; i < n; ++i)
-        imgXYZ[i].setRgb(imgRGB[4*i], imgRGB[4*i + 1], imgRGB[4*i + 2]);
-
-    // do the median cut
-    _colors = medianCut(imgXYZ, n, paletteSize);
-}
-
-void ColorXYZ::setRgb(unsigned char R, unsigned char G, unsigned char B) {
+void ColorXYZ::set(unsigned char R, unsigned char G, unsigned char B) {
     float r = R / 255.0;
     float g = G / 255.0;
     float b = B / 255.0;

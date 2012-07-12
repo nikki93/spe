@@ -36,7 +36,7 @@ bool BrushStyler::containsEdge(int x, int y, float threshold, float target) {
 
 BrushStyler::BrushStyler(ofPixels &img, ofPixels &edges, Field &field)
     : _edges(edges), _img(img), _forceField(field), _brushInd(-1),
-      _iterations(0) /*_palette(palette)*/ {
+      _iterations(0) {
 }
 
 void BrushStyler::clear() {
@@ -143,7 +143,8 @@ void BrushStyler::generate() {
             filled[y][x] = false;
 
     // generate palette
-    Palette palette(_img, 42);
+    //Palette<ofColor, unsigned char> palette(_img, 28);
+    Palette<ColorXYZ, float> palette(_img, 28);
 
     // normal layers
     float target;
@@ -187,7 +188,7 @@ void BrushStyler::generate() {
             {
                 _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
                             //_palette.getClosest(_img.getColor(x, y)), 
-            /* darker */    ofColor(100, 100, 100, 1)*palette.getClosest(_img.getColor(x, y)), 
+            /* darker */    ofColor(128, 128, 128, 1)*palette.getClosest(_img.getColor(x, y)), 
                             minRad, seed++,
                             Settings::brushLength, 
                             0.1 + 1/(minRad*minRad),

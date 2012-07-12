@@ -29,11 +29,7 @@ Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus
 
 #include <vector>
 
-#include "Palette.h"
-
-typedef ColorXYZ Color;
-typedef float ColorElement;
-
+template<typename Color, typename ColorElement>
 class Block
 {
         Color minCorner, maxCorner;
@@ -45,7 +41,7 @@ class Block
         Color *getPoints();
         int numPoints() const;
         int longestSideIndex() const;
-        int longestSideLength() const;
+        ColorElement longestSideLength() const;
         bool operator<(const Block& rhs) const;
         void shrink();
 
@@ -69,7 +65,7 @@ class Block
         }
 };
 
-template <int index>
+template <typename Color, int index>
 struct CoordinatePointComparator
 {
     bool operator()(Color left, Color right)
@@ -79,6 +75,9 @@ struct CoordinatePointComparator
 };
 
 // construct palette of given size from given image
+template <typename Color, typename ColorElement>
 std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSize);
+
+#include "median_cut.cpp"
 
 #endif /* #ifndef MEDIAN_CUT_H_ */

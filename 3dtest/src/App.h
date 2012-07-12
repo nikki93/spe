@@ -8,7 +8,6 @@
 #include <ofImage.h>
 #include <ofTrueTypeFont.h>
 
-#include "Ball.h"
 #include "Model.h"
 #include "Brush.h"
 #include "Field.h"
@@ -23,7 +22,6 @@ class App :
         // scene
         ofCamera _cam;
         ofLight _light;
-        std::vector<Ball *> _balls;
         std::vector<Model *> _models;
         ofImage _floorTex;
 

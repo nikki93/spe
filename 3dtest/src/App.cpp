@@ -44,17 +44,6 @@ void App::setup()
     _light.setDiffuseColor(ofFloatColor(0.8, 0.5, 0.1));
     _light.setPosition(40, 40, 40);
 
-    // balls
-    int n = 0;//10;
-    while (n--)
-        _balls.push_back(new Ball(
-                    ofVec3f(ofRandom(-100, 100), ofRandom(20, 70), ofRandom(-100, 100)), // pos
-                    ofVec3f(0, ofRandom(-5, 5), 0), // vel
-                    ofVec3f(0, -20, 0), // acc
-                    ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255)), // col
-                    ofRandom(4, 14) // radius
-                    ));
-
     // models
     //Model *m = new Model("data/models/dolphin/dolphin_000001.obj", 1,
             //ofMatrix4x4::newScaleMatrix(20, 20, 20));
@@ -104,11 +93,6 @@ void App::stepScene(float elapsed)
     _cam.setPosition(camPos);
     _cam.lookAt(ofVec3f(0, 50, 0));
 
-    // balls
-    for (std::vector<Ball *>::iterator i = _balls.begin();
-            i != _balls.end(); ++i)
-        (*i)->update(elapsed);
-
     // model animation
     for (std::vector<Model *>::iterator i = _models.begin();
             i != _models.end(); ++i)
@@ -145,10 +129,6 @@ void App::drawScene()
             i != _models.end(); ++i)
         (*i)->draw();
 
-    for (std::vector<Ball *>::iterator i = _balls.begin();
-            i != _balls.end(); ++i)
-        (*i)->draw();
-
     // floor
     /*
     _floorTex.getTextureReference().bind();
@@ -175,13 +155,6 @@ void App::exit()
     {
         delete _models.back();
         _models.pop_back();
-    }
-
-    // remove balls
-    while (!_balls.empty())
-    {
-        delete _balls.back();
-        _balls.pop_back();
     }
 }
 //--------------------------------------------------------------

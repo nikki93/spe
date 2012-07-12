@@ -24,12 +24,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Retrieved from: http://en.literateprograms.org/Median_cut_algorithm_(C_Plus_Plus)?oldid=12754
 */
 
+#ifndef __MEDIAN_CUT_CPP__
+#define __MEDIAN_CUT_CPP__
+
 #include <limits>
 #include <queue>
 #include <algorithm>
 #include "median_cut.h"
 
-Block::Block(Color *points, int pointsLength)
+template<typename Color, typename ColorElement>
+Block<Color, ColorElement>::Block(Color *points, int pointsLength)
 {
     this->points = points;
     this->pointsLength = pointsLength;
@@ -40,23 +44,26 @@ Block::Block(Color *points, int pointsLength)
     }
 }
 
-Color *Block::getPoints()
+template<typename Color, typename ColorElement>
+Color *Block<Color, ColorElement>::getPoints()
 {
     return points;
 }
 
-int Block::numPoints() const
+template<typename Color, typename ColorElement>
+int Block<Color, ColorElement>::numPoints() const
 {
     return pointsLength;
 }
 
-int Block::longestSideIndex() const
+template<typename Color, typename ColorElement>
+int Block<Color, ColorElement>::longestSideIndex() const
 {
-    int m = maxCorner.v[0] - minCorner.v[0];
+    ColorElement m = maxCorner.v[0] - minCorner.v[0];
     int maxIndex = 0;
     for(int i=1; i < 3; i++)
     {
-        int diff = maxCorner.v[i] - minCorner.v[i];
+        ColorElement diff = maxCorner.v[i] - minCorner.v[i];
         if (diff > m)
         {
             m = diff;
@@ -66,18 +73,21 @@ int Block::longestSideIndex() const
     return maxIndex;
 }
 
-int Block::longestSideLength() const
+template<typename Color, typename ColorElement>
+ColorElement Block<Color, ColorElement>::longestSideLength() const
 {
     int i = longestSideIndex();
     return maxCorner.v[i] - minCorner.v[i];
 }
 
-bool Block::operator<(const Block& rhs) const
+template<typename Color, typename ColorElement>
+bool Block<Color, ColorElement>::operator<(const Block& rhs) const
 {
     return this->longestSideLength() < rhs.longestSideLength();
 }
 
-void Block::shrink()
+template<typename Color, typename ColorElement>
+void Block<Color, ColorElement>::shrink()
 {
     int i,j;
     for(j=0; j<3; j++)
@@ -94,15 +104,16 @@ void Block::shrink()
     }
 }
 
+template<typename Color, typename ColorElement>
 std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSize)
 {
-    std::priority_queue<Block> blockQueue;
-    Block initialBlock(image, numPoints);
+    std::priority_queue<Block<Color, ColorElement> > blockQueue;
+    Block<Color, ColorElement> initialBlock(image, numPoints);
     initialBlock.shrink();
     blockQueue.push(initialBlock);
     while (blockQueue.size() < desiredSize && blockQueue.top().numPoints() > 1)
     {
-        Block longestBlock = blockQueue.top();
+        Block<Color, ColorElement> longestBlock = blockQueue.top();
 
         blockQueue.pop();
         Color *begin  = longestBlock.getPoints();
@@ -110,12 +121,12 @@ std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSi
         Color *end    = longestBlock.getPoints() + longestBlock.numPoints();
         switch(longestBlock.longestSideIndex())
         {
-            case 0: std::nth_element(begin, median, end, CoordinatePointComparator<0>()); break;
-            case 1: std::nth_element(begin, median, end, CoordinatePointComparator<1>()); break;
-            case 2: std::nth_element(begin, median, end, CoordinatePointComparator<2>()); break;
+            case 0: std::nth_element(begin, median, end, CoordinatePointComparator<Color, 0>()); break;
+            case 1: std::nth_element(begin, median, end, CoordinatePointComparator<Color, 1>()); break;
+            case 2: std::nth_element(begin, median, end, CoordinatePointComparator<Color, 2>()); break;
         }
 
-        Block block1(begin, median-begin), block2(median, end-median);
+        Block<Color, ColorElement> block1(begin, median-begin), block2(median, end-median);
         block1.shrink();
         block2.shrink();
         blockQueue.push(block1);
@@ -124,7 +135,7 @@ std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSi
     std::vector<Color> result;
     while(!blockQueue.empty())
     {
-        Block block = blockQueue.top();
+        Block<Color, ColorElement> block = blockQueue.top();
         blockQueue.pop();
         Color *points = block.getPoints();
 
@@ -148,3 +159,4 @@ std::vector<Color> medianCut(Color *image, int numPoints, unsigned int desiredSi
     return result;
 }
 
+#endif

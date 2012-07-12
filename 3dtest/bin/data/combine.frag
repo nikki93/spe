@@ -10,7 +10,7 @@ void main()
 
     vec4 color = texture2DRect(paint, coord);
     if (texture2DRect(edge, coord).r < 0.5)
-        color *= 0.42;
+        color *= 0.52;
     vec4 canvascolor = texture2DRect(canvas, mod(coord, 512.0));
 
     //gl_FragColor = texture2DRect(edge, coord) * texture2DRect(paint, coord);

@@ -6,7 +6,10 @@
 #include "ofGraphics.h"
 #include "ofImage.h"
 
-struct ColorXYZ {
+#include "median_cut.h"
+
+struct ColorXYZ 
+{
     float v[3]; // the three CIE XYZ components, in order X, Y, Z
 
     ColorXYZ() { }
@@ -16,32 +19,45 @@ struct ColorXYZ {
     }
     ColorXYZ(const ofColor &rgb)
     {
-        setRgb(rgb.r, rgb.g, rgb.b);
+        set(rgb.r, rgb.g, rgb.b);
     }
 
-    void setRgb(unsigned char R, unsigned char G, unsigned char B);
+    operator ofColor() { return getRgb(); }
+
+    void set(unsigned char R, unsigned char G, unsigned char B);
     ofColor getRgb();
 
     ColorXYZ lerp(const ColorXYZ &r, float f);
-    float dist(const ColorXYZ &r)
-    {
-        ofVec3f disp(v[0] - r.v[0], v[1] - r.v[1], v[2] - r.v[2]);
-        return disp.length();
-    }
 };
 
-inline float dist(const ofColor &a, const ofColor &b)
+template<typename Color>
+inline float sqDist(const Color &a, const Color &b)
 {
-    ofVec3f disp(a.r - b.r, a.g - b.g, a.b - b.b);
-    return disp.length();
+    ofVec3f disp(a.v[0] - b.v[0], a.v[1] - b.v[1], a.v[2] - b.v[2]);
+    return disp.squareLength();
 }
 
-class Palette {
-    typedef std::vector<ColorXYZ> ColorList;
-    ColorList _colors;
+template<typename Color, typename ColorElement>
+class Palette 
+{
+        typedef std::vector<Color> ColorList;
+        ColorList _colors;
 
     public:
-        Palette(ofPixels &img, int numColors);
+        Palette(ofPixels &img, int paletteSize) 
+        {
+            // make XYZ image
+            int n = img.getWidth() * img.getHeight();
+
+            unsigned char *imgRGB = img.getPixels();
+            Color *imgXYZ = new Color[n];
+
+            for (int i = 0; i < n; ++i)
+                imgXYZ[i].set(imgRGB[4*i], imgRGB[4*i + 1], imgRGB[4*i + 2]);
+
+            // do the median cut
+            _colors = medianCut<Color, ColorElement>(imgXYZ, n, paletteSize);
+        }
 
         ofColor getColor(size_t i)
         {
@@ -51,39 +67,20 @@ class Palette {
                 return ofColor::black;
         }
 
-        /*
         ofColor getClosest(const ofColor &col)
         {
-            ColorXYZ xyz(col);
-
             float minDist = std::numeric_limits<float>::max(), currDist;
-            ColorXYZ closest(0, 0, 0);
+            Color xyz(col), closest(0, 0, 0);
 
-            for (ColorList::iterator i = _colors.begin();
+            for (typename ColorList::iterator i = _colors.begin();
                     i != _colors.end(); ++i)
-                if ((currDist = i->dist(xyz)) < minDist)
+                if ((currDist = sqDist(*i, xyz)) < minDist)
                 {
                     closest = *i;
                     minDist = currDist;
                 }
 
-            return closest.getRgb();
-        }
-        */
-        ofColor getClosest(const ofColor &col)
-        {
-            float minDist = std::numeric_limits<float>::max(), currDist;
-            ColorXYZ xyz(col), closest(0, 0, 0);
-
-            for (ColorList::iterator i = _colors.begin();
-                    i != _colors.end(); ++i)
-                if ((currDist = xyz.dist(*i)) < minDist)
-                {
-                    closest = *i;
-                    minDist = currDist;
-                }
-
-            return closest.getRgb();
+            return closest;
         }
 };
 
