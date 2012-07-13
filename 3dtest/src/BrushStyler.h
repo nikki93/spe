@@ -19,7 +19,7 @@ class BrushStyler {
         typedef std::vector<BrushList> BrushListList;
         BrushListList _brushes;
 
-        bool containsEdge(int x, int y, float threshold, float target);
+        bool containsEdge(int x, int y, float target);
 
     public:
         BrushStyler(ofPixels &img, ofPixels &edges, Field &field);

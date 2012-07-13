@@ -4,10 +4,18 @@
 
 float  Settings::brushStepTime = 0.005;
 float  Settings::fieldMagnitude = 100;
-float  Settings::brushGridStep = 7;
-float  Settings::brushRadius = 5;
+
+float Settings::brushBigRadius = 20;
+float Settings::brushFineRadius = 2;
+float Settings::brushSizeMultiplier = 0.7;
+float Settings::brushLevels = 6;
+float Settings::brushCloseness = 0.7;
+float Settings::brushPaletteSize = 6;
+bool Settings::brushPaletteXYZ = false;
+
 float  Settings::brushLength = 60;
-float  Settings::brushDensity = 0.3;
+float  Settings::minBrushDensity = 0.1;
+float  Settings::maxBrushDensity = 0.3;
 float  Settings::brushFuzziness = 7;
 float  Settings::brushGrain = 0.4;
 float  Settings::blurSize = 5;

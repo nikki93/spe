@@ -3,34 +3,38 @@
 #include "Settings.h"
 #include "Palette.h"
 
-bool BrushStyler::containsEdge(int x, int y, float threshold, float target) {
-    int lower, upper;
-    for (int r = 0; r <= target; r++) {
-        lower = std::max(0, y - r);
-        upper = std::min(y + r, 768);
+// red value lower than this means edge
+#define EDGE_THRESHOLD 128
+
+// whether there's an edge in a square of side 2*radius centered at x, y
+bool BrushStyler::containsEdge(int x, int y, float radius) {
+    for (int r = 0; r <= radius; r++) {
+        int lower = std::max(0, y - r), upper = std::min(y + r, 767);
         // left
         if (x - r >= 0)
             for (int j = lower; j <= upper; j++)
-                if (_edges.getColor(x - r, j).r <= threshold)
+                if (_edges.getColor(x - r, j).r <= EDGE_THRESHOLD)
                     return true;
         // right
         if (x + r <= 1023)
             for (int j = lower; j <= upper; j++)
-                if (_edges.getColor(x + r, j).r <= threshold)
+                if (_edges.getColor(x + r, j).r <= EDGE_THRESHOLD)
                     return true;
+
         lower = std::max(0, x - r);
         upper = std::min(x + r, 1023);
         // top
         if (y - r <= 0)
             for (int j = lower; j <= upper; j++)
-                if (_edges.getColor(j, y - r).r <= threshold)
+                if (_edges.getColor(j, y - r).r <= EDGE_THRESHOLD)
                     return true;
         // bottom
         if (y + r <= 767)
             for (int j = lower; j <= upper; j++)
-                if (_edges.getColor(j, y + r).r <= threshold)
+                if (_edges.getColor(j, y + r).r <= EDGE_THRESHOLD)
                     return true;
     }
+
     return false;
 }
 
@@ -40,7 +44,6 @@ BrushStyler::BrushStyler(ofPixels &img, ofPixels &edges, Field &field)
 }
 
 void BrushStyler::clear() {
-
     // remove brushes
     while (!_brushes.empty())
     {
@@ -111,96 +114,81 @@ bool BrushStyler::move() {
 }
 
 void BrushStyler::generate() {
+    int levels = Settings::brushLevels;
 
-    // put in the gui
-    float minRad = 2, maxRad = 20; 
-    int levels = 6;
-    float threshold = 128.0;
-    float dist = 400;
-    float density = 0.1;
-    float fuzziness = 2;
-    float interceptability = 0.7; // ^_^
+    // seed
+    int seed = 0; // FIXME: use a more legitimate way to generate seeds
 
-    int gridStep = 0.8 * maxRad;
-    float brushStep;
-
-    int seed = 0; // random seed, fix later
-
-    // draw largest brush first
+    // coarse layer is extra
     _brushInd = 0;
-
-    // get brush step
-    if (maxRad - minRad == 0)
-        brushStep = 1;
-    else
-        brushStep = 1.0 * (maxRad - minRad) / (levels - 1);
-    _brushes.resize(levels + 1); // + 1 is for the coarse layer
-
-    // filledness array for brush placement
-    bool filled[768][1024];
-    for (int y = 0; y < 768; y++)
-        for (int x = 0; x < 1024; x++)
-            filled[y][x] = false;
+    _brushes.resize(levels + 1);
 
     // generate palette
-    //Palette<ofColor, unsigned char> palette(_img, 28);
-    Palette<ColorXYZ, float> palette(_img, 28);
+    PaletteBase *palette;
+    if (Settings::brushPaletteXYZ)
+        palette = new Palette<ColorXYZ, float>(_img, Settings::brushPaletteSize);
+    else
+        palette = new Palette<ofColor, unsigned char>(_img, Settings::brushPaletteSize);
+
+    // filledness array for brush intersection testing
+    bool filled[768][1024] = { false };
 
     // normal layers
-    float target;
-    int i;
-    float curr = maxRad;
+    float curr = Settings::brushBigRadius;
     ofColor col;
-    for (i = 0; i < levels; i++) {
-        target = curr * 0.6; // MULTIPLIER!!! put in GUI
-        gridStep = curr * interceptability;
+    for (int i = 0; i < levels; i++) {
+        float target = curr * Settings::brushCloseness;
+
         for (int y = 0; y < 768; ++y)
             for (int x = 0; x < 1024; ++x)
-                if (!filled[y][x] 
-                        && (col = _img.getColor(x, y)).a < 200
-                        && !containsEdge(x, y, threshold, target)) {
+                if (!filled[y][x] // not previously filled
+                        && (col = _img.getColor(x, y)).a < 200 // not high-depth (background)
+                        && !containsEdge(x, y, target)) { // doesn't contain edge
                     _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
-                                //_palette.getClosest(_img.getColor(x, y)), 
-                                palette.getClosest(col), curr, seed++,
+                                palette->getClosest(col), curr, seed++,
                                 Settings::brushLength, 
-                                0.08 + (((float) i)/levels)*(Settings::brushDensity - 0.08), 
+                                Settings::minBrushDensity + 
+                                        (((float) i)/levels)*(Settings::maxBrushDensity - Settings::minBrushDensity), 
                                 Settings::brushFuzziness, Settings::brushGrain));
 
                     // update filledness
-                    int tmp = std::min((int)(y + curr * interceptability), 767);
-                    int tmp2;
-                    for (int m = std::max((int)(y - curr * interceptability), 0); m <= tmp; m++) {
-                        tmp2 = std::min((int)(x + curr * interceptability), 1023);
-                        for (int n = std::max((int)(x - curr * interceptability), 0); n <= tmp2; n++)
+                    int tmp = std::min((int)(y + target), 767);
+                    for (int m = std::max((int)(y - target), 0); m <= tmp; m++) {
+                        int tmp2 = std::min((int)(x + target), 1023);
+                        for (int n = std::max((int)(x - target), 0); n <= tmp2; n++)
                             filled[m][n] = true;
                     }
                 }
-        curr *= 0.7;
+
+        curr *= Settings::brushSizeMultiplier; // next one's smaller
     }
 
     // fine
     for (int y = 0; y < 768; y++)
         for (int x = 0; x < 1024; x++)
             filled[y][x] = false;
+
     for (int y = 0; y < 768; ++y)
         for (int x = 0; x < 1024; ++x)
-            if (!filled[y][x] && _edges.getColor(x, y).r <= threshold)
+            if (!filled[y][x] && _edges.getColor(x, y).r <= EDGE_THRESHOLD)
             {
-                _brushes[i].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
-                            //_palette.getClosest(_img.getColor(x, y)), 
-            /* darker */    ofColor(128, 128, 128, 1)*palette.getClosest(_img.getColor(x, y)), 
-                            minRad, seed++,
+                _brushes[levels].push_back(new Brush(ofVec2f(x, y), ofVec2f(0, 0), 
+            /* darker */    ofColor(128, 128, 128, 1)*palette->getClosest(_img.getColor(x, y)), 
+                            Settings::brushFineRadius, seed++,
                             Settings::brushLength, 
-                            0.1 + 1/(minRad*minRad),
+                            0.1 + 1/(Settings::brushFineRadius*Settings::brushFineRadius),
                             Settings::brushFuzziness, Settings::brushGrain,
             /* smaller */   ofVec2f(0.1, 0.8)));
 
-                int tmp = std::min((int)(y + 3*minRad), 767);
-                int tmp2;
-                for (int m = std::max((int)(y - 3*minRad), 0); m <= tmp; m++) {
-                    tmp2 = std::min((int)(x + 3*minRad), 1023);
-                    for (int n = std::max((int)(x - 3*minRad), 0); n <= tmp2; n++)
+                // update filledness
+                int tmp = std::min((int)(y + 3*Settings::brushFineRadius), 767);
+                for (int m = std::max((int)(y - 3*Settings::brushFineRadius), 0); m <= tmp; m++) {
+                    int tmp2 = std::min((int)(x + 3*Settings::brushFineRadius), 1023);
+                    for (int n = std::max((int)(x - 3*Settings::brushFineRadius), 0); n <= tmp2; n++)
                         filled[m][n] = true;
                 }
             }
+
+    delete palette;
 }
+

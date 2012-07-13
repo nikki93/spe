@@ -1,22 +1,47 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Brush step time</Name>
-    <Value>0.005013</Value>
+    <Value>0.003045</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
-    <Name>Force field magnitude</Name>
-    <Value>35.000000</Value>
+    <Name>Force field strength</Name>
+    <Value>57.500000</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
-    <Name>Brush size</Name>
-    <Value>6.075000</Value>
+    <Name>Brush layers</Name>
+    <Value>6.000000</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
-    <Name>Brush grid step</Name>
-    <Value>9.400001</Value>
+    <Name>Large brush size</Name>
+    <Value>20.875000</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>Fine brush size</Name>
+    <Value>2.071429</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>Brush size factor</Name>
+    <Value>0.535179</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>Brush closeness</Name>
+    <Value>0.694643</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>Palette size</Name>
+    <Value>77.200005</Value>
+</Widget>
+<Widget>
+    <Kind>17</Kind>
+    <Name>CIE XYZ</Name>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -25,8 +50,13 @@
 </Widget>
 <Widget>
     <Kind>4</Kind>
-    <Name>Brush hair density</Name>
-    <Value>0.978786</Value>
+    <Name>Min. brush hair density</Name>
+    <Value>0.218607</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>Max. brush hair density</Name>
+    <Value>0.582786</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>

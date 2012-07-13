@@ -37,8 +37,14 @@ inline float sqDist(const Color &a, const Color &b)
     return disp.squareLength();
 }
 
+class PaletteBase
+{
+    public:
+        virtual ofColor getClosest(const ofColor &col) = 0;
+};
+
 template<typename Color, typename ColorElement>
-class Palette 
+class Palette : public PaletteBase
 {
         typedef std::vector<Color> ColorList;
         ColorList _colors;

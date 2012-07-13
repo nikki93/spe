@@ -34,11 +34,20 @@ class GUI
 
             // brush settings
             addSlider("Brush step time", &Settings::brushStepTime, 0.0005, 0.01, 0.005);
-            addSlider("Force field magnitude", &Settings::fieldMagnitude, 0, 700, 100);
-            addSlider("Brush size", &Settings::brushRadius, 1, 50, 5);
-            addSlider("Brush grid step", &Settings::brushGridStep, 1, 50, 7);
+            addSlider("Force field strength", &Settings::fieldMagnitude, 0, 700, 100);
+
+            addSlider("Brush layers", &Settings::brushLevels, 1, 16, 6);
+            addSlider("Large brush size", &Settings::brushBigRadius, 1, 160, 20);
+            addSlider("Fine brush size", &Settings::brushFineRadius, 1, 16, 2);
+            addSlider("Brush size factor", &Settings::brushSizeMultiplier, 0.05, 1, 0.7);
+
+            addSlider("Brush closeness", &Settings::brushCloseness, 0.1, 1, 0.7);
+            addSlider("Palette size", &Settings::brushPaletteSize, 1, 128, 28);
+            _canvas.addWidgetDown(new ofxUILabelToggle(134, false, "CIE XYZ", OFX_UI_FONT_SMALL, 20));
+
             addSlider("Brush length", &Settings::brushLength, 5, 200, 60);
-            addSlider("Brush hair density", &Settings::brushDensity, 0.01, 1, 0.3);
+            addSlider("Min. brush hair density", &Settings::minBrushDensity, 0.01, 1, 0.1);
+            addSlider("Max. brush hair density", &Settings::maxBrushDensity, 0.01, 1, 0.3);
             addSlider("Brush hair fuzziness", &Settings::brushFuzziness, 0, 15, 7);
             addSlider("Brush hair grain", &Settings::brushGrain, 0, 2, 0.4);
 
@@ -60,7 +69,10 @@ class GUI
         {
             std::string name = e.widget->getName();
 
-            if (name == "Auto update")
+            if (name == "CIE XYZ")
+                Settings::brushPaletteXYZ = dynamic_cast<ofxUIToggle *>(e.widget)->getValue();
+
+            else if (name == "Auto update")
                 Settings::autoUpdate = dynamic_cast<ofxUIToggle *>(e.widget)->getValue();
 
             else if (name == "Next frame")
@@ -74,9 +86,9 @@ class GUI
             }
         }
 
-        void addSlider(const std::string &name, float *var, float min, float max, float def)
+        void addSlider(const std::string &name, float *var, float min, float max, float def, float width = 280)
         {
-            ofxUISlider *slider = new ofxUISlider(280, 10, min, max, *var = def, name);
+            ofxUISlider *slider = new ofxUISlider(width, 10, min, max, *var = def, name);
             _canvas.addWidgetDown(slider);
             slider->setLabelPrecision(5);
             slider->setColorFill(ofColor::black);
